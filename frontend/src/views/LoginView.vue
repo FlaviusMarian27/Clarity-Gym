@@ -1,5 +1,6 @@
 <template>
-  <div class="min-h-screen bg-bg flex items-center justify-center">
+  <NavbarSimple />
+    <div class="min-h-screen bg-bg flex items-center justify-center pt-20">
     <div class="bg-card rounded-2xl shadow-lg p-8 w-full max-w-md">
 
       <!-- Titlu -->
@@ -36,3 +37,7 @@
     </div>
   </div>
 </template>
+
+<script setup>
+  import NavbarSimple from '../components/NavbarSimple.vue'
+</script>
