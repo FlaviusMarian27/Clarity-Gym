@@ -11,7 +11,7 @@
         playsinline
         class="absolute inset-0 w-full h-full object-cover"
         @ended="switchVideo"
-      >
+        >
         <source :src="currentVideo" type="video/mp4" />
       </video>
 
