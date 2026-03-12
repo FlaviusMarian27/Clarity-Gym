@@ -88,7 +88,7 @@
         <div class="grid grid-cols-3 gap-6">
           <div v-for="trainer in trainers" :key="trainer.id" class="bg-card rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
             <div class="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white font-bold text-3xl mb-4">
-              {{ trainer.initial }}
+              {{ trainer.name ? trainer.name[0].toUpperCase() : '?' }}
             </div>
             <h3 class="text-xl font-bold text-text">{{ trainer.name }}</h3>
             <p class="text-primary text-sm mt-1 font-medium">{{ trainer.specialty }}</p>
@@ -355,7 +355,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import NavbarClient from '../components/NavbarClient.vue'
 
 const videos = ['/video1.mp4', '/video2.mp4']
@@ -371,9 +372,14 @@ function switchVideo() {
   heroVideo.value.play()
 }
 
-const trainers = ref([
-  { id: 1, initial: 'A', name: 'Alexandru Pop', specialty: 'Fitness & Forță', experience: 5, bio: 'Specialist în antrenamente de forță și transformare corporală.' },
-  { id: 2, initial: 'M', name: 'Maria Ionescu', specialty: 'Yoga & Wellness', experience: 7, bio: 'Expertă în yoga, mobilitate și antrenamente de relaxare.' },
-  { id: 3, initial: 'R', name: 'Radu Marin', specialty: 'Cardio & Nutriție', experience: 4, bio: 'Specializat în programe de slăbit și nutriție sportivă.' },
-])
+const trainers = ref([])
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('/api/trainers')
+    trainers.value = response.data
+  } catch (err) {
+    console.error('Eroare la încărcarea antrenorilor:', err)
+  }
+})
 </script>

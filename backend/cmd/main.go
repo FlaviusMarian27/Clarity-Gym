@@ -8,6 +8,7 @@ import (
 
 	"clarity-gym/config"
 	"clarity-gym/internal/auth"
+	"clarity-gym/internal/trainer"
 	"clarity-gym/internal/user"
 
 	"github.com/go-chi/chi/v5"
@@ -40,6 +41,10 @@ func main() {
 		DB: db,
 	}
 
+	trainerHandler := &trainer.Handler{
+		DB: db,
+	}
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -59,7 +64,10 @@ func main() {
 	r.Post("/api/auth/register", authHandler.Register)
 	r.Post("/api/auth/login", authHandler.Login)
 
-	// Admin routes - protejate cu JWT
+	// Public routes
+	r.Get("/api/trainers", trainerHandler.GetAllTrainers)
+
+	// Admin routes
 	r.Group(func(r chi.Router) {
 		r.Use(auth.AuthMiddleware(cfg.JWTSecret))
 		r.Get("/api/admin/users", userHandler.GetAllUsers)
