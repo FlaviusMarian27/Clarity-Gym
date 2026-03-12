@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,21 +25,43 @@ const router = createRouter({
     {
       path: '/client',
       name: 'client',
-      component: () => import('../views/ClientView.vue')
+      component: () => import('../views/ClientView.vue'),
+      meta: { requiresAuth: true, role: 'client' }
     },
 
     {
       path: '/trainer',
       name: 'trainer',
-      component: () => import('../views/TrainerView.vue')
+      component: () => import('../views/TrainerView.vue'),
+      meta: { requiresAuth: true, role: 'trainer' }
     },
     
     {
       path: '/admin',
       name: 'admin',
-      component: () => import('../views/AdminView.vue')
+      component: () => import('../views/AdminView.vue'),
+      meta: { requiresAuth: true, role: 'admin' }
     }
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+
+  if (to.meta.requiresAuth) {
+    if (!authStore.isLoggedIn) {
+      next('/login')
+      return
+    }
+    if (to.meta.role && authStore.role !== to.meta.role) {
+      if (authStore.role === 'client') next('/client')
+      else if (authStore.role === 'trainer') next('/trainer')
+      else if (authStore.role === 'admin') next('/admin')
+      return
+    }
+  }
+
+  next()
 })
 
 export default router
