@@ -22,14 +22,18 @@
         <div class="flex items-center gap-4">
 
           <!-- Clopot -->
-          <div class="relative">
+          <a href="#cereri" class="relative">
             <button class="w-11 h-11 rounded-full bg-bg flex items-center justify-center hover:bg-primary hover:text-white transition-colors duration-200 text-text">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
             </button>
-            <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-400 text-white text-xs rounded-full flex items-center justify-center font-bold">2</span>
-          </div>
+            <span 
+              v-if="pendingCount > 0"
+              class="absolute -top-1 -right-1 w-5 h-5 bg-red-400 text-white text-xs rounded-full flex items-center justify-center font-bold">
+              {{ pendingCount }}
+            </span>
+          </a>
 
           <!-- Avatar -->
           <div class="relative">
@@ -59,14 +63,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import axios from 'axios'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const dropdownOpen = ref(false)
-const initial = ref('A') // o sa vina din backend mai tarziu
+const initial = ref('A')
+const pendingCount = ref(0)
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('/api/collaborations/my')
+    pendingCount.value = response.data.filter(r => r.status === 'pending').length
+  } catch (err) {
+    console.error(err)
+  }
+})
 
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value

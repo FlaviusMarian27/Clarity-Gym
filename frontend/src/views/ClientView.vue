@@ -94,10 +94,20 @@
             <p class="text-primary text-sm mt-1 font-medium">{{ trainer.specialty }}</p>
             <p class="text-text opacity-60 text-sm mt-1">{{ trainer.experience }} ani experiență</p>
             <p class="text-text opacity-70 text-sm mt-3 leading-relaxed">{{ trainer.bio }}</p>
-            <button 
-              @click="sendCollaborationRequest(trainer.id)"
-              class="mt-5 w-full py-2 bg-primary hover:bg-secondary text-white rounded-xl transition-colors duration-200 font-semibold">
-              Colaborează
+            <button
+              @click="getRequestStatus(trainer.id) === null || getRequestStatus(trainer.id) === 'rejected' ? sendCollaborationRequest(trainer.id) : null"
+              :disabled="getRequestStatus(trainer.id) === 'pending' || getRequestStatus(trainer.id) === 'accepted'"
+              :class="[
+                'mt-5 w-full py-2 rounded-xl transition-colors duration-200 font-semibold',
+                getRequestStatus(trainer.id) === 'accepted' ? 'bg-green-400 text-white cursor-not-allowed' :
+                getRequestStatus(trainer.id) === 'pending' ? 'bg-yellow-400 text-white cursor-not-allowed' :
+                'bg-primary hover:bg-secondary text-white'
+              ]"
+            >
+              {{ getRequestStatus(trainer.id) === 'accepted' ? 'Acceptat ✓' :
+                getRequestStatus(trainer.id) === 'pending' ? 'În așteptare...' :
+                getRequestStatus(trainer.id) === 'rejected' ? 'Retrimite cerere' :
+                'Colaborează' }}
             </button>
           </div>
         </div>
@@ -378,10 +388,14 @@ const trainers = ref([])
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/trainers')
-    trainers.value = response.data
+    const [trainersRes, statusRes] = await Promise.all([
+      axios.get('/api/trainers'),
+      axios.get('/api/collaborations/status')
+    ])
+    trainers.value = trainersRes.data
+    myRequests.value = statusRes.data
   } catch (err) {
-    console.error('Eroare la încărcarea antrenorilor:', err)
+    console.error(err)
   }
 })
 

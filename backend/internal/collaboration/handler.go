@@ -167,3 +167,41 @@ func (h *Handler) GetMyClients(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(clients)
 }
+
+func (h *Handler) GetMyStatus(w http.ResponseWriter, r *http.Request) {
+	clientID, _ := r.Context().Value(auth.UserIDKey).(string)
+
+	rows, err := h.DB.Query(`
+		SELECT cr.id, cr.trainer_id, u.name, cr.status, cr.created_at
+		FROM collaboration_requests cr
+		JOIN users u ON u.id = cr.trainer_id
+		WHERE cr.client_id = $1
+		ORDER BY cr.created_at DESC
+	`, clientID)
+
+	if err != nil {
+		http.Error(w, "Eroare server", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	type Status struct {
+		ID          string `json:"id"`
+		TrainerID   string `json:"trainer_id"`
+		TrainerName string `json:"trainer_name"`
+		Status      string `json:"status"`
+		CreatedAt   string `json:"created_at"`
+	}
+
+	statuses := []Status{}
+	for rows.Next() {
+		var s Status
+		if err := rows.Scan(&s.ID, &s.TrainerID, &s.TrainerName, &s.Status, &s.CreatedAt); err != nil {
+			continue
+		}
+		statuses = append(statuses, s)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(statuses)
+}
