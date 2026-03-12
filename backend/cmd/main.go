@@ -8,6 +8,7 @@ import (
 
 	"clarity-gym/config"
 	"clarity-gym/internal/auth"
+	"clarity-gym/internal/collaboration"
 	"clarity-gym/internal/trainer"
 	"clarity-gym/internal/user"
 
@@ -36,14 +37,9 @@ func main() {
 		DB:        db,
 		JWTSecret: cfg.JWTSecret,
 	}
-
-	userHandler := &user.Handler{
-		DB: db,
-	}
-
-	trainerHandler := &trainer.Handler{
-		DB: db,
-	}
+	userHandler := &user.Handler{DB: db}
+	trainerHandler := &trainer.Handler{DB: db}
+	collaborationHandler := &collaboration.Handler{DB: db}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -67,12 +63,19 @@ func main() {
 	// Public routes
 	r.Get("/api/trainers", trainerHandler.GetAllTrainers)
 
-	// Admin routes
+	// Protected routes
 	r.Group(func(r chi.Router) {
 		r.Use(auth.AuthMiddleware(cfg.JWTSecret))
+
+		// Admin
 		r.Get("/api/admin/users", userHandler.GetAllUsers)
 		r.Put("/api/admin/users/{id}/suspend", userHandler.SuspendUser)
 		r.Delete("/api/admin/users/{id}", userHandler.DeleteUser)
+
+		// Colaborare
+		r.Post("/api/collaborations", collaborationHandler.SendRequest)
+		r.Get("/api/collaborations/my", collaborationHandler.GetMyRequests)
+		r.Put("/api/collaborations/{id}/respond", collaborationHandler.RespondToRequest)
 	})
 
 	fmt.Println("🚀 Server pornit pe portul", cfg.Port)
