@@ -75,6 +75,106 @@
       </div>
     </section>
 
+    <!-- CERERI COLABORARE -->
+    <section id="cereri" class="py-24 bg-bg">
+      <div class="max-w-6xl mx-auto px-8">
+
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold text-text mb-4">Cereri de Colaborare</h2>
+          <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
+          <p class="text-lg text-text opacity-70 mt-6">Clienții care vor să lucreze cu tine</p>
+        </div>
+
+        <!-- Fara cereri -->
+        <div v-if="requests.length === 0" class="text-center py-16">
+          <p class="text-text opacity-50 text-lg">Nu ai cereri de colaborare momentan.</p>
+        </div>
+
+        <!-- Lista cereri -->
+        <div class="flex flex-col gap-4">
+          <div
+            v-for="req in requests"
+            :key="req.id"
+            class="bg-card rounded-2xl p-6 flex justify-between items-center shadow-sm"
+          >
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
+                {{ req.client_name ? req.client_name[0].toUpperCase() : '?' }}
+              </div>
+              <div>
+                <h4 class="font-bold text-text">{{ req.client_name }}</h4>
+                <p class="text-text opacity-60 text-sm">{{ req.created_at.slice(0, 10) }}</p>
+              </div>
+            </div>
+
+            <!-- Status + Butoane -->
+            <div class="flex items-center gap-3">
+              <span v-if="req.status === 'pending'" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-semibold">
+                În așteptare
+              </span>
+              <span v-else-if="req.status === 'accepted'" class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-xs font-semibold">
+                Acceptat
+              </span>
+              <span v-else class="px-3 py-1 bg-red-100 text-red-500 rounded-full text-xs font-semibold">
+                Respins
+              </span>
+
+              <template v-if="req.status === 'pending'">
+                <button
+                  @click="respondToRequest(req.id, 'accepted')"
+                  class="px-4 py-2 bg-green-100 text-green-600 hover:bg-green-200 rounded-xl text-sm font-semibold transition-colors duration-200"
+                >
+                  Acceptă
+                </button>
+                <button
+                  @click="respondToRequest(req.id, 'rejected')"
+                  class="px-4 py-2 bg-red-100 text-red-500 hover:bg-red-200 rounded-xl text-sm font-semibold transition-colors duration-200"
+                >
+                  Respinge
+                </button>
+              </template>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CLIENTII MEI -->
+    <section id="clienti" class="py-24 bg-card">
+      <div class="max-w-6xl mx-auto px-8">
+
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold text-text mb-4">Clienții Mei</h2>
+          <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
+          <p class="text-lg text-text opacity-70 mt-6">Clienții cu care colaborezi activ</p>
+        </div>
+
+        <!-- Fara clienti -->
+        <div v-if="clients.length === 0" class="text-center py-16">
+          <p class="text-text opacity-50 text-lg">Nu ai clienți activi momentan.</p>
+        </div>
+
+        <!-- Grid clienti -->
+        <div class="grid grid-cols-3 gap-6">
+          <div
+            v-for="client in clients"
+            :key="client.id"
+            class="bg-bg rounded-2xl p-6 shadow-sm flex flex-col items-center text-center"
+          >
+            <div class="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-2xl mb-4">
+              {{ client.name ? client.name[0].toUpperCase() : '?' }}
+            </div>
+            <h3 class="text-lg font-bold text-text">{{ client.name }}</h3>
+            <p class="text-text opacity-60 text-sm mt-1">{{ client.email }}</p>
+            <p class="text-text opacity-40 text-xs mt-2">Client din {{ client.since.slice(0, 10) }}</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- RECENZII -->
     <section id="recenzii" class="py-24 bg-bg">
       <div class="max-w-6xl mx-auto px-8">
@@ -247,7 +347,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import NavbarTrainer from '../components/NavbarTrainer.vue'
 
 const videos = ['/video1.mp4', '/video2.mp4']
@@ -262,4 +363,41 @@ function switchVideo() {
   heroVideo.value.load()
   heroVideo.value.play()
 }
+
+const requests = ref([])
+const clients = ref([])
+
+async function fetchRequests() {
+  try {
+    const response = await axios.get('/api/collaborations/my')
+    requests.value = response.data
+  } catch (err) {
+    console.error('Eroare la încărcarea cererilor:', err)
+  }
+}
+
+async function fetchClients() {
+  try {
+    const response = await axios.get('/api/collaborations/clients')
+    clients.value = response.data
+  } catch (err) {
+    console.error('Eroare la încărcarea clienților:', err)
+  }
+}
+
+async function respondToRequest(id, status) {
+  try {
+    await axios.put(`/api/collaborations/${id}/respond`, { status })
+    const req = requests.value.find(r => r.id === id)
+    if (req) req.status = status
+    if (status === 'accepted') await fetchClients()
+  } catch (err) {
+    console.error('Eroare:', err)
+  }
+}
+
+onMounted(() => {
+  fetchRequests()
+  fetchClients()
+})
 </script>

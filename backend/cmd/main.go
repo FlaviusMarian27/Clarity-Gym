@@ -75,6 +75,7 @@ func main() {
 		// Colaborare
 		r.Post("/api/collaborations", collaborationHandler.SendRequest)
 		r.Get("/api/collaborations/my", collaborationHandler.GetMyRequests)
+		r.Get("/api/collaborations/clients", collaborationHandler.GetMyClients)
 		r.Put("/api/collaborations/{id}/respond", collaborationHandler.RespondToRequest)
 	})
 

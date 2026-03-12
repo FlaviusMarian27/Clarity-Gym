@@ -12,6 +12,8 @@
       <div class="flex items-center gap-8">
         <a href="#hero" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Acasă</a>
         <a href="#despre" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Despre</a>
+        <a href="#cereri" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Cereri</a>
+        <a href="#clienti" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Clienții Mei</a>
         <a href="#recenzii" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Recenzii</a>
         <a href="#locatie" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Locație</a>
         <a href="#suport" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Suport</a>

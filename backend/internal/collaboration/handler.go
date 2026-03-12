@@ -35,7 +35,6 @@ func (h *Handler) SendRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verifica daca exista deja o cerere pending
 	var existingID string
 	err := h.DB.QueryRow(
 		"SELECT id FROM collaboration_requests WHERE client_id = $1 AND trainer_id = $2 AND status = 'pending'",
@@ -130,4 +129,41 @@ func (h *Handler) RespondToRequest(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"status": resp.Status})
+}
+
+func (h *Handler) GetMyClients(w http.ResponseWriter, r *http.Request) {
+	trainerID, _ := r.Context().Value(auth.UserIDKey).(string)
+
+	rows, err := h.DB.Query(`
+		SELECT u.id, u.name, u.email, cr.created_at
+		FROM collaboration_requests cr
+		JOIN users u ON u.id = cr.client_id
+		WHERE cr.trainer_id = $1 AND cr.status = 'accepted'
+		ORDER BY cr.created_at DESC
+	`, trainerID)
+
+	if err != nil {
+		http.Error(w, "Eroare server", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	type Client struct {
+		ID    string `json:"id"`
+		Name  string `json:"name"`
+		Email string `json:"email"`
+		Since string `json:"since"`
+	}
+
+	clients := []Client{}
+	for rows.Next() {
+		var c Client
+		if err := rows.Scan(&c.ID, &c.Name, &c.Email, &c.Since); err != nil {
+			continue
+		}
+		clients = append(clients, c)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(clients)
 }
