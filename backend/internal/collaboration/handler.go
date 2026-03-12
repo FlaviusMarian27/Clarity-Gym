@@ -172,7 +172,7 @@ func (h *Handler) GetMyStatus(w http.ResponseWriter, r *http.Request) {
 	clientID, _ := r.Context().Value(auth.UserIDKey).(string)
 
 	rows, err := h.DB.Query(`
-		SELECT cr.id, cr.trainer_id, u.name, cr.status, cr.created_at
+		SELECT cr.id, cr.trainer_id, u.name, cr.status, cr.seen, cr.created_at
 		FROM collaboration_requests cr
 		JOIN users u ON u.id = cr.trainer_id
 		WHERE cr.client_id = $1
@@ -190,13 +190,14 @@ func (h *Handler) GetMyStatus(w http.ResponseWriter, r *http.Request) {
 		TrainerID   string `json:"trainer_id"`
 		TrainerName string `json:"trainer_name"`
 		Status      string `json:"status"`
+		Seen        bool   `json:"seen"`
 		CreatedAt   string `json:"created_at"`
 	}
 
 	statuses := []Status{}
 	for rows.Next() {
 		var s Status
-		if err := rows.Scan(&s.ID, &s.TrainerID, &s.TrainerName, &s.Status, &s.CreatedAt); err != nil {
+		if err := rows.Scan(&s.ID, &s.TrainerID, &s.TrainerName, &s.Status, &s.Seen, &s.CreatedAt); err != nil {
 			continue
 		}
 		statuses = append(statuses, s)
@@ -204,4 +205,20 @@ func (h *Handler) GetMyStatus(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(statuses)
+}
+
+func (h *Handler) MarkAsSeen(w http.ResponseWriter, r *http.Request) {
+	clientID, _ := r.Context().Value(auth.UserIDKey).(string)
+
+	_, err := h.DB.Exec(
+		"UPDATE collaboration_requests SET seen = TRUE WHERE client_id = $1 AND (status = 'accepted' OR status = 'rejected')",
+		clientID,
+	)
+
+	if err != nil {
+		http.Error(w, "Eroare server", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

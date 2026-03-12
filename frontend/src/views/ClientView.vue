@@ -411,4 +411,11 @@ async function sendCollaborationRequest(trainerId) {
     }
   }
 }
+
+const myRequests = ref([])
+
+function getRequestStatus(trainerId) {
+  const req = myRequests.value.find(r => r.trainer_id === trainerId)
+  return req ? req.status : null
+}
 </script>

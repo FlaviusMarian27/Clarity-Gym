@@ -78,6 +78,7 @@ func main() {
 		r.Get("/api/collaborations/clients", collaborationHandler.GetMyClients)
 		r.Put("/api/collaborations/{id}/respond", collaborationHandler.RespondToRequest)
 		r.Get("/api/collaborations/status", collaborationHandler.GetMyStatus)
+		r.Post("/api/collaborations/seen", collaborationHandler.MarkAsSeen)
 	})
 
 	fmt.Println("🚀 Server pornit pe portul", cfg.Port)

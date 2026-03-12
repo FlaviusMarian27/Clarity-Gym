@@ -103,7 +103,10 @@ const myRequests = ref([])
 onMounted(async () => {
   try {
     const response = await axios.get('/api/collaborations/status')
-    myRequests.value = response.data
+    // Arata notificare doar daca exista cereri accepted sau rejected
+    notifCount.value = response.data.filter(
+      r => r.status === 'accepted' || r.status === 'rejected'
+    ).length
   } catch (err) {
     console.error(err)
   }
