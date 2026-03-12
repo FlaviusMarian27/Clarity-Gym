@@ -28,10 +28,11 @@
             class="border border-primary rounded-xl px-4 py-3 text-text bg-bg focus:outline-none focus:ring-2 focus:ring-secondary"
           />
           <button
-            @click="handleLogin"
-            class="bg-primary hover:bg-secondary text-white font-semibold py-3 rounded-xl transition-colors duration-200"
-          >
-            Autentificare
+              @click="handleLogin"
+              :disabled="loading"
+              class="bg-primary hover:bg-secondary text-white font-semibold py-3 rounded-xl transition-colors duration-200 disabled:opacity-50"
+            >
+              {{ loading ? 'Se încarcă...' : 'Autentificare' }}
           </button>
         </div>
 
@@ -52,6 +53,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import NavbarSimple from '../components/NavbarSimple.vue'
+import axios from 'axios'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -59,15 +61,9 @@ const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 const error = ref('')
+const loading = ref(false)
 
-// Date fake pentru testare - vor fi inlocuite cu API call
-const fakeUsers = [
-  { email: 'client@test.com', password: '1234', role: 'client', name: 'Flavius' },
-  { email: 'trainer@test.com', password: '1234', role: 'trainer', name: 'Alexandru' },
-  { email: 'admin@test.com', password: '1234', role: 'admin', name: 'Admin' },
-]
-
-function handleLogin() {
+async function handleLogin() {
   error.value = ''
 
   if (!email.value || !password.value) {
@@ -75,19 +71,25 @@ function handleLogin() {
     return
   }
 
-  const user = fakeUsers.find(
-    u => u.email === email.value && u.password === password.value
-  )
+  loading.value = true
 
-  if (!user) {
+  try {
+    const response = await axios.post('/api/auth/login', {
+      email: email.value,
+      password: password.value
+    })
+
+    const data = response.data
+    authStore.login(data)
+
+    if (data.role === 'client') router.push('/client')
+    else if (data.role === 'trainer') router.push('/trainer')
+    else if (data.role === 'admin') router.push('/admin')
+
+  } catch (err) {
     error.value = 'Email sau parolă incorecte!'
-    return
+  } finally {
+    loading.value = false
   }
-
-  authStore.login(user)
-
-  if (user.role === 'client') router.push('/client')
-  else if (user.role === 'trainer') router.push('/trainer')
-  else if (user.role === 'admin') router.push('/admin')
 }
 </script>
