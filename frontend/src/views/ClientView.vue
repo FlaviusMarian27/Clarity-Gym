@@ -94,7 +94,9 @@
             <p class="text-primary text-sm mt-1 font-medium">{{ trainer.specialty }}</p>
             <p class="text-text opacity-60 text-sm mt-1">{{ trainer.experience }} ani experiență</p>
             <p class="text-text opacity-70 text-sm mt-3 leading-relaxed">{{ trainer.bio }}</p>
-            <button class="mt-5 w-full py-2 bg-primary hover:bg-secondary text-white rounded-xl transition-colors duration-200 font-semibold">
+            <button 
+              @click="sendCollaborationRequest(trainer.id)"
+              class="mt-5 w-full py-2 bg-primary hover:bg-secondary text-white rounded-xl transition-colors duration-200 font-semibold">
               Colaborează
             </button>
           </div>
@@ -382,4 +384,17 @@ onMounted(async () => {
     console.error('Eroare la încărcarea antrenorilor:', err)
   }
 })
+
+async function sendCollaborationRequest(trainerId) {
+  try {
+    await axios.post('/api/collaborations', { trainer_id: trainerId })
+    alert('Cerere trimisă cu succes!')
+  } catch (err) {
+    if (err.response?.status === 409) {
+      alert('Ai deja o cerere trimisă acestui antrenor!')
+    } else {
+      alert('Eroare la trimiterea cererii!')
+    }
+  }
+}
 </script>
