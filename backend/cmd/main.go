@@ -8,6 +8,7 @@ import (
 
 	"clarity-gym/config"
 	"clarity-gym/internal/auth"
+	"clarity-gym/internal/user"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -28,11 +29,15 @@ func main() {
 		log.Fatal("Baza de date nu raspunde:", err)
 	}
 
-	fmt.Println("Conectat la PostgreSQL!")
+	fmt.Println("✅ Conectat la PostgreSQL!")
 
 	authHandler := &auth.Handler{
 		DB:        db,
 		JWTSecret: cfg.JWTSecret,
+	}
+
+	userHandler := &user.Handler{
+		DB: db,
 	}
 
 	r := chi.NewRouter()
@@ -54,6 +59,14 @@ func main() {
 	r.Post("/api/auth/register", authHandler.Register)
 	r.Post("/api/auth/login", authHandler.Login)
 
-	fmt.Println("Server pornit pe portul", cfg.Port)
+	// Admin routes - protejate cu JWT
+	r.Group(func(r chi.Router) {
+		r.Use(auth.AuthMiddleware(cfg.JWTSecret))
+		r.Get("/api/admin/users", userHandler.GetAllUsers)
+		r.Put("/api/admin/users/{id}/suspend", userHandler.SuspendUser)
+		r.Delete("/api/admin/users/{id}", userHandler.DeleteUser)
+	})
+
+	fmt.Println("🚀 Server pornit pe portul", cfg.Port)
 	log.Fatal(http.ListenAndServe(":"+cfg.Port, c.Handler(r)))
 }

@@ -87,9 +87,9 @@
                   <td class="px-6 py-4">
                     <span :class="[
                       'px-3 py-1 rounded-full text-xs font-semibold',
-                      user.suspended ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-600'
+                      user.is_suspended ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-600'
                     ]">
-                      {{ user.suspended ? 'Suspendat' : 'Activ' }}
+                      {{ user.is_suspended ? 'Suspendat' : 'Activ' }}
                     </span>
                   </td>
                   <td class="px-6 py-4">
@@ -98,12 +98,12 @@
                         @click="toggleSuspend(user)"
                         :class="[
                           'px-3 py-1 rounded-lg text-xs font-semibold transition-colors duration-200',
-                          user.suspended
+                          user.is_suspended
                             ? 'bg-green-100 text-green-600 hover:bg-green-200'
                             : 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
                         ]"
                       >
-                        {{ user.suspended ? 'Activează' : 'Suspendă' }}
+                        {{ user.is_suspended ? 'Activează' : 'Suspendă' }}
                       </button>
                       <button
                         @click="deleteUser(user.id)"
@@ -223,8 +223,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import NavbarAdmin from '../components/NavbarAdmin.vue'
+import axios from 'axios'
 
 const activeSection = ref('users')
 const activeUserFilter = ref('all')
@@ -242,13 +243,7 @@ const userFilters = [
   { key: 'trainer', label: 'Antrenori' },
 ]
 
-const users = ref([
-  { id: 1, name: 'Alexandru Pop', email: 'alex@email.com', role: 'client', suspended: false },
-  { id: 2, name: 'Maria Ionescu', email: 'maria@email.com', role: 'trainer', suspended: false },
-  { id: 3, name: 'Radu Marin', email: 'radu@email.com', role: 'client', suspended: false },
-  { id: 4, name: 'Ioana Constantin', email: 'ioana@email.com', role: 'trainer', suspended: true },
-  { id: 5, name: 'Daniel Filip', email: 'daniel@email.com', role: 'client', suspended: false },
-])
+const users = ref([])
 
 const plans = ref([
   { id: 1, type: 'Buget', name: 'Dimineața', price: 180, description: 'Acces 06:00 - 12:00' },
@@ -257,9 +252,8 @@ const plans = ref([
 ])
 
 const supportMessages = ref([
-  { id: 1, name: 'Alexandru Pop', email: 'alex@email.com', category: 'Problemă cont', message: 'Nu mă pot loga în aplicație de ieri. Am încercat să resetez parola dar nu primesc emailul.' },
-  { id: 2, name: 'Ioana Constantin', email: 'ioana@email.com', category: 'Problemă abonament', message: 'Am plătit abonamentul Standard dar în aplicație îmi arată că nu am abonament activ.' },
-  { id: 3, name: 'Radu Marin', email: 'radu@email.com', category: 'Altele', message: 'Aș vrea să știu dacă există posibilitatea unui abonament de 3 luni cu discount.' },
+  { id: 1, name: 'Alexandru Pop', email: 'alex@email.com', category: 'Problemă cont', message: 'Nu mă pot loga în aplicație de ieri.' },
+  { id: 2, name: 'Ioana Constantin', email: 'ioana@email.com', category: 'Problemă abonament', message: 'Am plătit abonamentul dar nu îmi apare activ.' },
 ])
 
 const newPlan = ref({ name: '', type: '', price: '', description: '' })
@@ -269,12 +263,31 @@ const filteredUsers = computed(() => {
   return users.value.filter(u => u.role === activeUserFilter.value)
 })
 
-function toggleSuspend(user) {
-  user.suspended = !user.suspended
+async function fetchUsers() {
+  try {
+    const response = await axios.get('/api/admin/users')
+    users.value = response.data
+  } catch (err) {
+    console.error('Eroare la încărcarea userilor:', err)
+  }
 }
 
-function deleteUser(id) {
-  users.value = users.value.filter(u => u.id !== id)
+async function toggleSuspend(user) {
+  try {
+    const response = await axios.put(`/api/admin/users/${user.id}/suspend`)
+    user.is_suspended = response.data.suspended
+  } catch (err) {
+    console.error('Eroare la suspendare:', err)
+  }
+}
+
+async function deleteUser(id) {
+  try {
+    await axios.delete(`/api/admin/users/${id}`)
+    users.value = users.value.filter(u => u.id !== id)
+  } catch (err) {
+    console.error('Eroare la ștergere:', err)
+  }
 }
 
 function deletePlan(id) {
@@ -283,11 +296,12 @@ function deletePlan(id) {
 
 function addPlan() {
   if (!newPlan.value.name || !newPlan.value.price) return
-  plans.value.push({
-    id: Date.now(),
-    ...newPlan.value
-  })
+  plans.value.push({ id: Date.now(), ...newPlan.value })
   newPlan.value = { name: '', type: '', price: '', description: '' }
   showAddPlan.value = false
 }
+
+onMounted(() => {
+  fetchUsers()
+})
 </script>
