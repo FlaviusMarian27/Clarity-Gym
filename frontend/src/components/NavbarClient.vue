@@ -73,20 +73,25 @@ const authStore = useAuthStore()
 const dropdownOpen = ref(false)
 const initial = ref('F')
 const notifCount = ref(0)
-const seen = ref(false)
 
 onMounted(async () => {
   try {
     const response = await axios.get('/api/collaborations/status')
-    notifCount.value = response.data.filter(r => r.status !== 'pending').length
+    notifCount.value = response.data.filter(
+      r => (r.status === 'accepted' || r.status === 'rejected') && r.seen === false
+    ).length
   } catch (err) {
     console.error(err)
   }
 })
 
-function handleBellClick() {
-  seen.value = true
-  notifCount.value = 0
+async function handleBellClick() {
+  try {
+    await axios.post('/api/collaborations/seen')
+    notifCount.value = 0
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 function toggleDropdown() {
@@ -96,24 +101,5 @@ function toggleDropdown() {
 function handleLogout() {
   authStore.logout()
   router.push('/')
-}
-
-const myRequests = ref([])
-
-onMounted(async () => {
-  try {
-    const response = await axios.get('/api/collaborations/status')
-    // Arata notificare doar daca exista cereri accepted sau rejected
-    notifCount.value = response.data.filter(
-      r => r.status === 'accepted' || r.status === 'rejected'
-    ).length
-  } catch (err) {
-    console.error(err)
-  }
-})
-
-function getRequestStatus(trainerId) {
-  const req = myRequests.value.find(r => r.trainer_id === trainerId)
-  return req ? req.status : null
 }
 </script>
