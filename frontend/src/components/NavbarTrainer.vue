@@ -44,7 +44,7 @@
               {{ initial }}
             </button>
             <div v-if="dropdownOpen" class="absolute right-0 mt-2 w-48 bg-card rounded-xl shadow-lg py-2 z-50">
-              <button class="w-full text-left px-4 py-2 text-text hover:bg-bg transition-colors duration-200">
+              <button @click="router.push('/profile')" class="w-full text-left px-4 py-2 text-text hover:bg-bg transition-colors duration-200">
                 Profilul meu
               </button>
               <button
