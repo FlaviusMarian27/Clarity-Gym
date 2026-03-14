@@ -3,37 +3,37 @@
     <div class="w-full px-8 py-4 flex justify-between items-center">
 
       <!-- Logo + Nume -->
-      <div class="flex items-center gap-3">
+      <div @click="goHome" class="flex items-center gap-3 cursor-pointer">
         <img src="/logo.png" alt="Clarity Gym Logo" class="h-12 w-12 object-contain" />
         <span class="text-2xl font-bold text-text">Clarity Gym</span>
       </div>
 
       <!-- Links + Clopot + Avatar -->
       <div class="flex items-center gap-8">
-        <a href="#hero" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Acasă</a>
-        <a href="#despre" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Despre</a>
-        <a href="#cereri" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Cereri</a>
-        <a href="#clienti" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Clienții Mei</a>
-        <a href="#recenzii" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Recenzii</a>
-        <a href="#locatie" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Locație</a>
-        <a href="#suport" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Suport</a>
-        <a href="#contact" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Contact</a>
+        <span @click="goHome" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Acasă</span>
+        <span @click="navigateTo('despre')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Despre</span>
+        <span @click="navigateTo('cereri')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Cereri</span>
+        <span @click="navigateTo('clienti')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Clienții Mei</span>
+        <span @click="navigateTo('recenzii')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Recenzii</span>
+        <span @click="navigateTo('locatie')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Locație</span>
+        <span @click="navigateTo('suport')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Suport</span>
+        <span @click="navigateTo('contact')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Contact</span>
 
         <div class="flex items-center gap-4">
 
           <!-- Clopot -->
-          <a href="#cereri" class="relative">
+          <div @click="navigateTo('cereri')" class="relative cursor-pointer">
             <button class="w-11 h-11 rounded-full bg-bg flex items-center justify-center hover:bg-primary hover:text-white transition-colors duration-200 text-text">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
             </button>
-            <span 
+            <span
               v-if="pendingCount > 0"
               class="absolute -top-1 -right-1 w-5 h-5 bg-red-400 text-white text-xs rounded-full flex items-center justify-center font-bold">
               {{ pendingCount }}
             </span>
-          </a>
+          </div>
 
           <!-- Avatar -->
           <div class="relative">
@@ -64,11 +64,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const dropdownOpen = ref(false)
 const initial = ref('A')
@@ -82,6 +83,22 @@ onMounted(async () => {
     console.error(err)
   }
 })
+
+function navigateTo(section) {
+  if (route.path === '/trainer') {
+    document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' })
+  } else {
+    router.push('/trainer#' + section)
+  }
+}
+
+function goHome() {
+  if (route.path === '/trainer') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else {
+    router.push('/trainer')
+  }
+}
 
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value

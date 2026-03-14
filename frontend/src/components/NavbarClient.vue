@@ -3,22 +3,22 @@
     <div class="w-full px-8 py-4 flex justify-between items-center">
 
         <!-- Logo + Nume -->
-        <div class="flex items-center gap-3">
+        <div @click="goHome" class="flex items-center gap-3 cursor-pointer">
           <img src="/logo.png" alt="Clarity Gym Logo" class="h-12 w-12 object-contain" />
           <span class="text-2xl font-bold text-text">Clarity Gym</span>
         </div>
 
         <!-- Links + Avatar -->
         <div class="flex items-center gap-8">
-          <a href="#hero" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Acasă</a>
-          <a href="#despre" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Despre</a>
-          <a href="#antrenori" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Antrenori</a>
-          <a href="#abonamente" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Abonamente</a>
-          <a href="#recenzii" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Recenzii</a>
-          <a href="#locatie" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Locație</a>
-          <a href="#suport" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Suport</a>
-          <a href="#contact" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium">Contact</a>
-
+          <span @click="goHome" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Acasă</span>
+          <span @click="navigateTo('despre')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Despre</span>
+          <span @click="navigateTo('antrenori')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Antrenori</span>
+          <span @click="navigateTo('abonamente')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Abonamente</span>
+          <span @click="navigateTo('recenzii')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Recenzii</span>
+          <span @click="navigateTo('locatie')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Locație</span>
+          <span @click="navigateTo('suport')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Suport</span>
+          <span @click="navigateTo('contact')" class="text-text hover:text-primary transition-colors duration-200 text-lg font-medium cursor-pointer">Contact</span>
+          
           <!-- Clopot + Avatar -->
           <div class="flex items-center gap-4">
 
@@ -64,11 +64,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const dropdownOpen = ref(false)
 const initial = ref('F')
@@ -89,8 +90,25 @@ async function handleBellClick() {
   try {
     await axios.post('/api/collaborations/seen')
     notifCount.value = 0
+    navigateTo('antrenori')
   } catch (err) {
     console.error(err)
+  }
+}
+
+function navigateTo(section) {
+  if (route.path === '/client') {
+    document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' })
+  } else {
+    router.push('/client#' + section)
+  }
+}
+
+function goHome() {
+  if (route.path === '/client') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else {
+    router.push('/client')
   }
 }
 
