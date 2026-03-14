@@ -13,6 +13,15 @@
 
       <!-- Card profil -->
       <div class="bg-card rounded-2xl shadow-sm p-10">
+            <button
+                @click="router.back()"
+                class="flex items-center gap-2 text-text opacity-60 hover:opacity-100 transition-opacity duration-200 mb-8"
+                >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                Înapoi
+            </button>
 
         <!-- Poza profil -->
         <div class="flex flex-col items-center mb-10">
@@ -113,11 +122,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useAuthStore } from '../stores/auth'
 import NavbarClient from '../components/NavbarClient.vue'
 import NavbarTrainer from '../components/NavbarTrainer.vue'
 
+const router = useRouter()
 const authStore = useAuthStore()
 const role = authStore.role
 
