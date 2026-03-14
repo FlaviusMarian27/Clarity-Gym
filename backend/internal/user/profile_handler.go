@@ -80,7 +80,7 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	userID, _ := r.Context().Value(auth.UserIDKey).(string)
 
-	r.ParseMultipartForm(10 << 20) // 10MB max
+	r.ParseMultipartForm(10 << 20)
 
 	file, handler, err := r.FormFile("avatar")
 	if err != nil {
@@ -89,14 +89,18 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Extensie fisier
 	ext := filepath.Ext(handler.Filename)
 	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".webp" {
 		http.Error(w, "Format invalid. Acceptam: jpg, png, webp", http.StatusBadRequest)
 		return
 	}
 
-	// Nume unic
+	// Sterge poza veche
+	oldFiles, _ := filepath.Glob(filepath.Join("uploads/avatars", userID+".*"))
+	for _, f := range oldFiles {
+		os.Remove(f)
+	}
+
 	filename := userID + ext
 	savePath := filepath.Join("uploads/avatars", filename)
 
@@ -109,7 +113,6 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 
 	io.Copy(dst, file)
 
-	// Salveaza URL in DB
 	avatarURL := "/uploads/avatars/" + filename
 	_, err = h.DB.Exec("UPDATE users SET avatar_url = $1 WHERE id = $2", avatarURL, userID)
 	if err != nil {
