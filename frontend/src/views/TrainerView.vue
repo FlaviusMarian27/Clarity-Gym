@@ -97,7 +97,7 @@
           >
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg overflow-hidden">
-                <img v-if="req.avatar_url" :src="req.avatar_url" class="w-full h-full object-cover" />
+                <img v-if="req.avatar_url" :src="req.avatar_url.startsWith('http') ? req.avatar_url : 'http://localhost:8080' + req.avatar_url" class="w-full h-full object-cover" />
                 <span v-else>{{ req.client_name ? req.client_name[0].toUpperCase() : '?' }}</span>
               </div>
               <div>
@@ -160,7 +160,7 @@
             class="bg-bg rounded-2xl p-6 shadow-sm flex flex-col items-center text-center"
           >
             <div class="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-2xl mb-4 overflow-hidden">
-              <img v-if="client.avatar_url" :src="client.avatar_url" class="w-full h-full object-cover" />
+              <img v-if="client.avatar_url" :src="client.avatar_url.startsWith('http') ? client.avatar_url : 'http://localhost:8080' + client.avatar_url" class="w-full h-full object-cover" />
               <span v-else>{{ client.name ? client.name[0].toUpperCase() : '?' }}</span>
             </div>
             <h3 class="text-lg font-bold text-text">{{ client.name }}</h3>

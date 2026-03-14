@@ -88,7 +88,7 @@
         <div class="grid grid-cols-3 gap-6">
           <div v-for="trainer in trainers" :key="trainer.id" class="bg-card rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
             <div class="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white font-bold text-3xl mb-4 overflow-hidden">
-              <img v-if="trainer.avatar_url" :src="trainer.avatar_url" class="w-full h-full object-cover" />
+              <img v-if="trainer.avatar_url" :src="trainer.avatar_url.startsWith('http') ? trainer.avatar_url : 'http://localhost:8080' + trainer.avatar_url" class="w-full h-full object-cover" />
               <span v-else>{{ trainer.name ? trainer.name[0].toUpperCase() : '?' }}</span>
             </div>
             <h3 class="text-xl font-bold text-text">{{ trainer.name }}</h3>

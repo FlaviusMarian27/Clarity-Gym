@@ -52,6 +52,9 @@ func main() {
 		AllowCredentials: true,
 	})
 
+	// Servire fisiere statice
+	r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Clarity Gym API"))
 	})
@@ -83,6 +86,7 @@ func main() {
 		// Profil
 		r.Get("/api/profile", userHandler.GetProfile)
 		r.Put("/api/profile", userHandler.UpdateProfile)
+		r.Post("/api/profile/avatar", userHandler.UploadAvatar)
 	})
 
 	fmt.Println("🚀 Server pornit pe portul", cfg.Port)

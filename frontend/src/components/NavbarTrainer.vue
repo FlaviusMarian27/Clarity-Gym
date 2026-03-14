@@ -41,7 +41,7 @@
               @click="toggleDropdown"
               class="w-11 h-11 rounded-full bg-secondary text-white font-bold text-lg flex items-center justify-center hover:bg-primary transition-colors duration-200 overflow-hidden"
             >
-              <img v-if="avatarUrl" :src="avatarUrl" class="w-full h-full object-cover" />
+              <img v-if="avatarUrl" :src="avatarUrl.startsWith('http') ? avatarUrl : 'http://localhost:8080' + avatarUrl" class="w-full h-full object-cover" />
               <span v-else>{{ initial }}</span>
             </button>
             <div v-if="dropdownOpen" class="absolute right-0 mt-2 w-48 bg-card rounded-xl shadow-lg py-2 z-50">

@@ -13,41 +13,33 @@
 
       <!-- Card profil -->
       <div class="bg-card rounded-2xl shadow-sm p-10">
-            <button
-                @click="router.back()"
-                class="flex items-center gap-2 text-text opacity-60 hover:opacity-100 transition-opacity duration-200 mb-8"
-                >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-                Înapoi
-            </button>
+
+        <!-- Buton inapoi -->
+        <button
+          @click="router.back()"
+          class="flex items-center gap-2 text-text opacity-60 hover:opacity-100 transition-opacity duration-200 mb-8"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Înapoi
+        </button>
 
         <!-- Poza profil -->
         <div class="flex flex-col items-center mb-10">
           <div class="relative">
             <div class="w-32 h-32 rounded-full bg-primary flex items-center justify-center text-white font-bold text-5xl overflow-hidden">
-              <img v-if="form.avatar_url" :src="form.avatar_url" class="w-full h-full object-cover" />
+              <img v-if="form.avatar_url" :src="'http://localhost:8080' + form.avatar_url" class="w-full h-full object-cover" />
               <span v-else>{{ form.name ? form.name[0].toUpperCase() : '?' }}</span>
             </div>
             <label class="absolute bottom-0 right-0 w-9 h-9 bg-secondary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary transition-colors duration-200">
               <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2a2 2 0 01.586-1.414z" />
               </svg>
-              <input type="text" class="hidden" @click.prevent="editAvatar = !editAvatar" />
+              <input type="file" accept=".jpg,.jpeg,.png,.webp" class="hidden" @change="uploadAvatar" />
             </label>
           </div>
-
-          <!-- Input URL poza -->
-          <div v-if="editAvatar" class="mt-4 w-full max-w-md">
-            <input
-              v-model="form.avatar_url"
-              type="text"
-              placeholder="URL poza profil (ex: https://...)"
-              class="w-full px-4 py-3 rounded-xl border border-primary/30 bg-bg text-text focus:outline-none focus:border-primary"
-            />
-          </div>
-
+          <p v-if="uploadingAvatar" class="text-primary text-sm mt-3">Se încarcă poza...</p>
           <h2 class="text-2xl font-bold text-text mt-4">{{ form.name }}</h2>
           <p class="text-primary font-medium mt-1">{{ role }}</p>
         </div>
@@ -110,7 +102,7 @@
             {{ loading ? 'Se salvează...' : 'Salvează modificările' }}
           </button>
 
-          <!-- Mesaj succes -->
+          <!-- Mesaj succes/eroare -->
           <p v-if="success" class="text-center text-green-500 font-medium">✓ Profil actualizat cu succes!</p>
           <p v-if="error" class="text-center text-red-400 font-medium">{{ error }}</p>
 
@@ -143,7 +135,7 @@ const form = ref({
 const loading = ref(false)
 const success = ref(false)
 const error = ref('')
-const editAvatar = ref(false)
+const uploadingAvatar = ref(false)
 
 onMounted(async () => {
   try {
@@ -165,6 +157,28 @@ async function saveProfile() {
     error.value = 'Eroare la salvare!'
   } finally {
     loading.value = false
+  }
+}
+
+async function uploadAvatar(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  uploadingAvatar.value = true
+  const formData = new FormData()
+  formData.append('avatar', file)
+
+  try {
+    const res = await axios.post('/api/profile/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    form.value.avatar_url = res.data.avatar_url
+    // Reload pentru a actualiza navbar-ul
+    setTimeout(() => window.location.reload(), 500)
+  } catch (err) {
+    console.error('Eroare upload:', err)
+  } finally {
+    uploadingAvatar.value = false
   }
 }
 </script>

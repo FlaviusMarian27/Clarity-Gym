@@ -39,11 +39,11 @@
             <!-- Avatar -->
             <div class="relative">
               <button
-                  @click="toggleDropdown"
-                  class="w-11 h-11 rounded-full bg-primary text-white font-bold text-lg flex items-center justify-center hover:bg-secondary transition-colors duration-200 overflow-hidden"
-                >
-                  <img v-if="avatarUrl" :src="avatarUrl" class="w-full h-full object-cover" />
-                  <span v-else>{{ initial }}</span>
+                @click="toggleDropdown"
+                class="w-11 h-11 rounded-full bg-primary text-white font-bold text-lg flex items-center justify-center hover:bg-secondary transition-colors duration-200 overflow-hidden"
+              >
+                <img v-if="avatarUrl" :src="avatarUrl.startsWith('http') ? avatarUrl : 'http://localhost:8080' + avatarUrl" class="w-full h-full object-cover" />
+                <span v-else>{{ initial }}</span>
               </button>
               <div v-if="dropdownOpen" class="absolute right-0 mt-2 w-48 bg-card rounded-xl shadow-lg py-2 z-50">
                 <button @click="router.push('/profile')" class="w-full text-left px-4 py-2 text-text hover:bg-bg transition-colors duration-200">

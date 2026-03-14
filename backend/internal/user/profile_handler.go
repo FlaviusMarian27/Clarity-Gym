@@ -2,7 +2,10 @@ package user
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"clarity-gym/internal/auth"
 )
@@ -72,4 +75,48 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+}
+
+func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
+	userID, _ := r.Context().Value(auth.UserIDKey).(string)
+
+	r.ParseMultipartForm(10 << 20) // 10MB max
+
+	file, handler, err := r.FormFile("avatar")
+	if err != nil {
+		http.Error(w, "Fisier invalid", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Extensie fisier
+	ext := filepath.Ext(handler.Filename)
+	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".webp" {
+		http.Error(w, "Format invalid. Acceptam: jpg, png, webp", http.StatusBadRequest)
+		return
+	}
+
+	// Nume unic
+	filename := userID + ext
+	savePath := filepath.Join("uploads/avatars", filename)
+
+	dst, err := os.Create(savePath)
+	if err != nil {
+		http.Error(w, "Eroare la salvare", http.StatusInternalServerError)
+		return
+	}
+	defer dst.Close()
+
+	io.Copy(dst, file)
+
+	// Salveaza URL in DB
+	avatarURL := "/uploads/avatars/" + filename
+	_, err = h.DB.Exec("UPDATE users SET avatar_url = $1 WHERE id = $2", avatarURL, userID)
+	if err != nil {
+		http.Error(w, "Eroare DB", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"avatar_url": avatarURL})
 }
