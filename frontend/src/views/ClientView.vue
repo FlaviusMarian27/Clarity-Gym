@@ -93,8 +93,7 @@
             </div>
             <h3 class="text-xl font-bold text-text">{{ trainer.name }}</h3>
             <p class="text-primary text-sm mt-1 font-medium">{{ trainer.specialty }}</p>
-            <p class="text-text opacity-60 text-sm mt-1">{{ trainer.experience }} ani experiență</p>
-            <p class="text-text opacity-70 text-sm mt-3 leading-relaxed">{{ trainer.bio }}</p>
+            <p class="text-text opacity-60 text-sm mt-1">{{ trainer.experience_years }} ani experiență</p>            <p class="text-text opacity-70 text-sm mt-3 leading-relaxed">{{ trainer.bio }}</p>
             <button
               @click="getRequestStatus(trainer.id) === null || getRequestStatus(trainer.id) === 'rejected' ? sendCollaborationRequest(trainer.id) : null"
               :disabled="getRequestStatus(trainer.id) === 'pending' || getRequestStatus(trainer.id) === 'accepted'"
