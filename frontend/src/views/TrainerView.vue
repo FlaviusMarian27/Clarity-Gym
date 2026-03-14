@@ -85,12 +85,10 @@
           <p class="text-lg text-text opacity-70 mt-6">Clienții care vor să lucreze cu tine</p>
         </div>
 
-        <!-- Fara cereri -->
         <div v-if="requests.length === 0" class="text-center py-16">
           <p class="text-text opacity-50 text-lg">Nu ai cereri de colaborare momentan.</p>
         </div>
 
-        <!-- Lista cereri -->
         <div class="flex flex-col gap-4">
           <div
             v-for="req in requests"
@@ -98,8 +96,9 @@
             class="bg-card rounded-2xl p-6 flex justify-between items-center shadow-sm"
           >
             <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
-                {{ req.client_name ? req.client_name[0].toUpperCase() : '?' }}
+              <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+                <img v-if="req.avatar_url" :src="req.avatar_url" class="w-full h-full object-cover" />
+                <span v-else>{{ req.client_name ? req.client_name[0].toUpperCase() : '?' }}</span>
               </div>
               <div>
                 <h4 class="font-bold text-text">{{ req.client_name }}</h4>
@@ -107,7 +106,6 @@
               </div>
             </div>
 
-            <!-- Status + Butoane -->
             <div class="flex items-center gap-3">
               <span v-if="req.status === 'pending'" class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-semibold">
                 În așteptare
@@ -151,20 +149,19 @@
           <p class="text-lg text-text opacity-70 mt-6">Clienții cu care colaborezi activ</p>
         </div>
 
-        <!-- Fara clienti -->
         <div v-if="clients.length === 0" class="text-center py-16">
           <p class="text-text opacity-50 text-lg">Nu ai clienți activi momentan.</p>
         </div>
 
-        <!-- Grid clienti -->
         <div class="grid grid-cols-3 gap-6">
           <div
             v-for="client in clients"
             :key="client.id"
             class="bg-bg rounded-2xl p-6 shadow-sm flex flex-col items-center text-center"
           >
-            <div class="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-2xl mb-4">
-              {{ client.name ? client.name[0].toUpperCase() : '?' }}
+            <div class="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-2xl mb-4 overflow-hidden">
+              <img v-if="client.avatar_url" :src="client.avatar_url" class="w-full h-full object-cover" />
+              <span v-else>{{ client.name ? client.name[0].toUpperCase() : '?' }}</span>
             </div>
             <h3 class="text-lg font-bold text-text">{{ client.name }}</h3>
             <p class="text-text opacity-60 text-sm mt-1">{{ client.email }}</p>
@@ -184,72 +181,66 @@
           <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
         </div>
 
-        <div class="grid grid-cols-3 gap-8">
+        <div class="grid grid-cols-3 gap-6">
           <div class="bg-card rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center gap-4 mb-4">
-              <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">A</div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold">A</div>
               <div>
-                <h4 class="font-bold text-text">Alexandru M.</h4>
-                <div class="flex gap-1 text-yellow-400 text-sm">★★★★★</div>
+                <p class="font-bold text-text">Alexandru M.</p>
+                <div class="flex text-yellow-400 text-sm">★★★★★</div>
               </div>
             </div>
-            <p class="text-text opacity-70 text-sm leading-relaxed">"Cea mai bună sală la care am fost. Atmosfera e incredibilă, echipamentele sunt mereu curate și antrenorii sunt super profesioniști."</p>
-            <p class="text-primary font-semibold text-sm mt-3">5.0 / 5</p>
+            <p class="text-text opacity-70 text-sm leading-relaxed">"Cel mai bun gym din oraș! Antrenorii sunt profesioniști și atmosfera este incredibilă."</p>
           </div>
           <div class="bg-card rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center gap-4 mb-4">
-              <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-lg">M</div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-white font-bold">M</div>
               <div>
-                <h4 class="font-bold text-text">Maria P.</h4>
-                <div class="flex gap-1 text-yellow-400 text-sm">★★★★★</div>
+                <p class="font-bold text-text">Maria P.</p>
+                <div class="flex text-yellow-400 text-sm">★★★★★</div>
               </div>
             </div>
-            <p class="text-text opacity-70 text-sm leading-relaxed">"Am slăbit 12 kg în 3 luni cu ajutorul antrenorului meu personal. Planul VIP merită fiecare leu investit!"</p>
-            <p class="text-primary font-semibold text-sm mt-3">5.0 / 5</p>
+            <p class="text-text opacity-70 text-sm leading-relaxed">"Am slăbit 15kg în 3 luni cu ajutorul antrenorilor de la Clarity Gym. Recomand cu căldură!"</p>
           </div>
           <div class="bg-card rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center gap-4 mb-4">
-              <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">R</div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold">I</div>
               <div>
-                <h4 class="font-bold text-text">Radu T.</h4>
-                <div class="flex gap-1 text-yellow-400 text-sm">★★★★★</div>
+                <p class="font-bold text-text">Ionuț C.</p>
+                <div class="flex text-yellow-400 text-sm">★★★★☆</div>
               </div>
             </div>
-            <p class="text-text opacity-70 text-sm leading-relaxed">"Abonamentul Standard e perfect pentru programul meu. Acces oricând, prețuri corecte și o comunitate extraordinară."</p>
-            <p class="text-primary font-semibold text-sm mt-3">5.0 / 5</p>
+            <p class="text-text opacity-70 text-sm leading-relaxed">"Echipamente moderne și personal amabil. Mă simt ca acasă de fiecare dată când vin."</p>
           </div>
           <div class="bg-card rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center gap-4 mb-4">
-              <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-lg">I</div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-white font-bold">E</div>
               <div>
-                <h4 class="font-bold text-text">Ioana C.</h4>
-                <div class="flex gap-1 text-yellow-400 text-sm">★★★★★</div>
+                <p class="font-bold text-text">Elena D.</p>
+                <div class="flex text-yellow-400 text-sm">★★★★★</div>
               </div>
             </div>
-            <p class="text-text opacity-70 text-sm leading-relaxed">"Spațiul e mereu curat, luminos și plăcut. Mă simt motivată de fiecare dată când intru pe ușă."</p>
-            <p class="text-primary font-semibold text-sm mt-3">5.0 / 5</p>
+            <p class="text-text opacity-70 text-sm leading-relaxed">"Programele de fitness sunt adaptate perfect nevoilor mele. Rezultate vizibile în doar 6 săptămâni!"</p>
           </div>
           <div class="bg-card rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center gap-4 mb-4">
-              <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">D</div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold">R</div>
               <div>
-                <h4 class="font-bold text-text">Daniel F.</h4>
-                <div class="flex gap-1 text-yellow-400 text-sm">★★★★★</div>
+                <p class="font-bold text-text">Radu T.</p>
+                <div class="flex text-yellow-400 text-sm">★★★★★</div>
               </div>
             </div>
-            <p class="text-text opacity-70 text-sm leading-relaxed">"Am recomandat Clarity Gym tuturor prietenilor mei. Raportul calitate-preț e imbatabil în oraș."</p>
-            <p class="text-primary font-semibold text-sm mt-3">5.0 / 5</p>
+            <p class="text-text opacity-70 text-sm leading-relaxed">"Abonamentul premium merită fiecare leu. Facilități de top și o comunitate minunată."</p>
           </div>
           <div class="bg-card rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center gap-4 mb-4">
-              <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-white font-bold text-lg">A</div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-white font-bold">A</div>
               <div>
-                <h4 class="font-bold text-text">Andrada N.</h4>
-                <div class="flex gap-1 text-yellow-400 text-sm">★★★★★</div>
+                <p class="font-bold text-text">Ana S.</p>
+                <div class="flex text-yellow-400 text-sm">★★★★★</div>
               </div>
             </div>
-            <p class="text-text opacity-70 text-sm leading-relaxed">"De când am început abonamentul de dimineață, ziua mea e complet diferită. Energie, focus și rezultate vizibile!"</p>
-            <p class="text-primary font-semibold text-sm mt-3">5.0 / 5</p>
+            <p class="text-text opacity-70 text-sm leading-relaxed">"Design-ul sălii este superb și curățenia impecabilă. Cel mai plăcut loc pentru antrenament!"</p>
           </div>
         </div>
 

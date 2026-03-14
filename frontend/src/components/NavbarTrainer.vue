@@ -39,9 +39,10 @@
           <div class="relative">
             <button
               @click="toggleDropdown"
-              class="w-11 h-11 rounded-full bg-secondary text-white font-bold text-lg flex items-center justify-center hover:bg-primary transition-colors duration-200"
+              class="w-11 h-11 rounded-full bg-secondary text-white font-bold text-lg flex items-center justify-center hover:bg-primary transition-colors duration-200 overflow-hidden"
             >
-              {{ initial }}
+              <img v-if="avatarUrl" :src="avatarUrl" class="w-full h-full object-cover" />
+              <span v-else>{{ initial }}</span>
             </button>
             <div v-if="dropdownOpen" class="absolute right-0 mt-2 w-48 bg-card rounded-xl shadow-lg py-2 z-50">
               <button @click="router.push('/profile')" class="w-full text-left px-4 py-2 text-text hover:bg-bg transition-colors duration-200">
@@ -72,13 +73,19 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const dropdownOpen = ref(false)
-const initial = ref('A')
+const initial = ref('T')
 const pendingCount = ref(0)
+const avatarUrl = ref('')
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/collaborations/my')
-    pendingCount.value = response.data.filter(r => r.status === 'pending').length
+    const [requestsRes, profileRes] = await Promise.all([
+      axios.get('/api/collaborations/my'),
+      axios.get('/api/profile')
+    ])
+    pendingCount.value = requestsRes.data.filter(r => r.status === 'pending').length
+    avatarUrl.value = profileRes.data.avatar_url
+    initial.value = profileRes.data.name ? profileRes.data.name[0].toUpperCase() : 'T'
   } catch (err) {
     console.error(err)
   }

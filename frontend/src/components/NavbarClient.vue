@@ -39,10 +39,11 @@
             <!-- Avatar -->
             <div class="relative">
               <button
-                @click="toggleDropdown"
-                class="w-11 h-11 rounded-full bg-primary text-white font-bold text-lg flex items-center justify-center hover:bg-secondary transition-colors duration-200"
-              >
-                {{ initial }}
+                  @click="toggleDropdown"
+                  class="w-11 h-11 rounded-full bg-primary text-white font-bold text-lg flex items-center justify-center hover:bg-secondary transition-colors duration-200 overflow-hidden"
+                >
+                  <img v-if="avatarUrl" :src="avatarUrl" class="w-full h-full object-cover" />
+                  <span v-else>{{ initial }}</span>
               </button>
               <div v-if="dropdownOpen" class="absolute right-0 mt-2 w-48 bg-card rounded-xl shadow-lg py-2 z-50">
                 <button @click="router.push('/profile')" class="w-full text-left px-4 py-2 text-text hover:bg-bg transition-colors duration-200">
@@ -72,15 +73,21 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const dropdownOpen = ref(false)
-const initial = ref('F')
+const initial = ref('C')
 const notifCount = ref(0)
+const avatarUrl = ref('')
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/collaborations/status')
-    notifCount.value = response.data.filter(
+    const [notifRes, profileRes] = await Promise.all([
+      axios.get('/api/collaborations/status'),
+      axios.get('/api/profile')
+    ])
+    notifCount.value = notifRes.data.filter(
       r => (r.status === 'accepted' || r.status === 'rejected') && r.seen === false
     ).length
+    avatarUrl.value = profileRes.data.avatar_url
+    initial.value = profileRes.data.name ? profileRes.data.name[0].toUpperCase() : 'C'
   } catch (err) {
     console.error(err)
   }

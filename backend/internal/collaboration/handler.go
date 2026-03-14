@@ -65,7 +65,7 @@ func (h *Handler) GetMyRequests(w http.ResponseWriter, r *http.Request) {
 	trainerID, _ := r.Context().Value(auth.UserIDKey).(string)
 
 	rows, err := h.DB.Query(`
-		SELECT cr.id, cr.client_id, u.name, cr.status, cr.created_at
+		SELECT cr.id, cr.client_id, u.name, COALESCE(u.avatar_url, ''), cr.status, cr.created_at
 		FROM collaboration_requests cr
 		JOIN users u ON u.id = cr.client_id
 		WHERE cr.trainer_id = $1
@@ -82,6 +82,7 @@ func (h *Handler) GetMyRequests(w http.ResponseWriter, r *http.Request) {
 		ID         string `json:"id"`
 		ClientID   string `json:"client_id"`
 		ClientName string `json:"client_name"`
+		AvatarURL  string `json:"avatar_url"`
 		Status     string `json:"status"`
 		CreatedAt  string `json:"created_at"`
 	}
@@ -89,7 +90,7 @@ func (h *Handler) GetMyRequests(w http.ResponseWriter, r *http.Request) {
 	requests := []Request{}
 	for rows.Next() {
 		var req Request
-		if err := rows.Scan(&req.ID, &req.ClientID, &req.ClientName, &req.Status, &req.CreatedAt); err != nil {
+		if err := rows.Scan(&req.ID, &req.ClientID, &req.ClientName, &req.AvatarURL, &req.Status, &req.CreatedAt); err != nil {
 			continue
 		}
 		requests = append(requests, req)
@@ -135,7 +136,7 @@ func (h *Handler) GetMyClients(w http.ResponseWriter, r *http.Request) {
 	trainerID, _ := r.Context().Value(auth.UserIDKey).(string)
 
 	rows, err := h.DB.Query(`
-		SELECT u.id, u.name, u.email, cr.created_at
+		SELECT u.id, u.name, u.email, COALESCE(u.avatar_url, ''), cr.created_at
 		FROM collaboration_requests cr
 		JOIN users u ON u.id = cr.client_id
 		WHERE cr.trainer_id = $1 AND cr.status = 'accepted'
@@ -149,16 +150,17 @@ func (h *Handler) GetMyClients(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	type Client struct {
-		ID    string `json:"id"`
-		Name  string `json:"name"`
-		Email string `json:"email"`
-		Since string `json:"since"`
+		ID        string `json:"id"`
+		Name      string `json:"name"`
+		Email     string `json:"email"`
+		AvatarURL string `json:"avatar_url"`
+		Since     string `json:"since"`
 	}
 
 	clients := []Client{}
 	for rows.Next() {
 		var c Client
-		if err := rows.Scan(&c.ID, &c.Name, &c.Email, &c.Since); err != nil {
+		if err := rows.Scan(&c.ID, &c.Name, &c.Email, &c.AvatarURL, &c.Since); err != nil {
 			continue
 		}
 		clients = append(clients, c)
