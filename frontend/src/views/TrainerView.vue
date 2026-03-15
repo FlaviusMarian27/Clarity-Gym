@@ -278,17 +278,43 @@
         </div>
         <div class="max-w-2xl mx-auto">
           <div class="flex flex-col gap-4">
-            <input type="text" placeholder="Numele tău" class="border border-primary rounded-xl px-4 py-3 text-text bg-card focus:outline-none focus:ring-2 focus:ring-secondary" />
-            <input type="email" placeholder="Email" class="border border-primary rounded-xl px-4 py-3 text-text bg-card focus:outline-none focus:ring-2 focus:ring-secondary" />
-            <select class="border border-primary rounded-xl px-4 py-3 text-text bg-card focus:outline-none focus:ring-2 focus:ring-secondary">
+            <input
+              v-model="supportForm.name"
+              type="text"
+              placeholder="Numele tău"
+              class="border border-primary rounded-xl px-4 py-3 text-text bg-card focus:outline-none focus:ring-2 focus:ring-secondary"
+            />
+            <input
+              v-model="supportForm.email"
+              type="email"
+              placeholder="Email"
+              class="border border-primary rounded-xl px-4 py-3 text-text bg-card focus:outline-none focus:ring-2 focus:ring-secondary"
+            />
+            <select
+              v-model="supportForm.category"
+              class="border border-primary rounded-xl px-4 py-3 text-text bg-card focus:outline-none focus:ring-2 focus:ring-secondary"
+            >
               <option value="">Selectează categoria problemei</option>
               <option value="cont">Problemă cont</option>
               <option value="abonament">Problemă abonament</option>
               <option value="tehnic">Problemă tehnică</option>
               <option value="altele">Altele</option>
             </select>
-            <textarea placeholder="Descrie problema ta..." rows="5" class="border border-primary rounded-xl px-4 py-3 text-text bg-card focus:outline-none focus:ring-2 focus:ring-secondary resize-none"></textarea>
-            <button class="bg-primary hover:bg-secondary text-white font-semibold py-3 rounded-xl transition-colors duration-200">Trimite</button>
+            <textarea
+              v-model="supportForm.message"
+              placeholder="Descrie problema ta..."
+              rows="5"
+              class="border border-primary rounded-xl px-4 py-3 text-text bg-card focus:outline-none focus:ring-2 focus:ring-secondary resize-none"
+            ></textarea>
+            <button
+              @click="sendSupportRequest"
+              :disabled="supportLoading"
+              class="bg-primary hover:bg-secondary text-white font-semibold py-3 rounded-xl transition-colors duration-200"
+            >
+              {{ supportLoading ? 'Se trimite...' : 'Trimite' }}
+            </button>
+            <p v-if="supportSuccess" class="text-center text-green-500 font-medium">✓ Mesaj trimis cu succes!</p>
+            <p v-if="supportError" class="text-center text-red-400 font-medium">{{ supportError }}</p>
           </div>
         </div>
       </div>
@@ -391,4 +417,24 @@ onMounted(() => {
   fetchRequests()
   fetchClients()
 })
+
+const supportForm = ref({ name: '', email: '', category: '', message: '' })
+const supportLoading = ref(false)
+const supportSuccess = ref(false)
+const supportError = ref('')
+
+async function sendSupportRequest() {
+  supportLoading.value = true
+  supportSuccess.value = false
+  supportError.value = ''
+  try {
+    await axios.post('/api/support', supportForm.value)
+    supportSuccess.value = true
+    supportForm.value = { name: '', email: '', category: '', message: '' }
+  } catch (err) {
+    supportError.value = 'Eroare la trimitere!'
+  } finally {
+    supportLoading.value = false
+  }
+}
 </script>

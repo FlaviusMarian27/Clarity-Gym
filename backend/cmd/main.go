@@ -16,6 +16,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
+
+	"clarity-gym/internal/support"
 )
 
 func main() {
@@ -40,6 +42,7 @@ func main() {
 	userHandler := &user.Handler{DB: db}
 	trainerHandler := &trainer.Handler{DB: db}
 	collaborationHandler := &collaboration.Handler{DB: db}
+	supportHandler := &support.Handler{DB: db}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -87,6 +90,11 @@ func main() {
 		r.Get("/api/profile", userHandler.GetProfile)
 		r.Put("/api/profile", userHandler.UpdateProfile)
 		r.Post("/api/profile/avatar", userHandler.UploadAvatar)
+
+		// Suport
+		r.Post("/api/support", supportHandler.SendRequest)
+		r.Get("/api/support", supportHandler.GetAllRequests)
+		r.Put("/api/support/close", supportHandler.CloseRequest)
 	})
 
 	fmt.Println("🚀 Server pornit pe portul", cfg.Port)

@@ -32,7 +32,6 @@
             <p class="text-text opacity-60 mt-1">Gestionează toți utilizatorii platformei</p>
           </div>
 
-          <!-- Filtre -->
           <div class="flex gap-4 mb-6">
             <button
               v-for="filter in userFilters"
@@ -49,7 +48,6 @@
             </button>
           </div>
 
-          <!-- Tabel -->
           <div class="bg-card rounded-2xl shadow-sm overflow-hidden">
             <table class="w-full">
               <thead class="bg-bg">
@@ -191,9 +189,29 @@
             <p class="text-text opacity-60 mt-1">Mesajele primite de la utilizatori</p>
           </div>
 
+          <!-- Filtre suport -->
+          <div class="flex gap-4 mb-6">
+            <button
+              @click="activeSupportFilter = 'all'"
+              :class="['px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-200', activeSupportFilter === 'all' ? 'bg-primary text-white' : 'bg-card text-text hover:bg-primary hover:text-white']"
+            >Toate</button>
+            <button
+              @click="activeSupportFilter = 'open'"
+              :class="['px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-200', activeSupportFilter === 'open' ? 'bg-primary text-white' : 'bg-card text-text hover:bg-primary hover:text-white']"
+            >Deschise</button>
+            <button
+              @click="activeSupportFilter = 'closed'"
+              :class="['px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-200', activeSupportFilter === 'closed' ? 'bg-primary text-white' : 'bg-card text-text hover:bg-primary hover:text-white']"
+            >Rezolvate</button>
+          </div>
+
+          <div v-if="filteredSupport.length === 0" class="text-center py-16">
+            <p class="text-text opacity-50 text-lg">Nu există mesaje momentan.</p>
+          </div>
+
           <div class="flex flex-col gap-4">
             <div
-              v-for="msg in supportMessages"
+              v-for="msg in filteredSupport"
               :key="msg.id"
               class="bg-card rounded-2xl p-6 shadow-sm"
             >
@@ -201,16 +219,22 @@
                 <div>
                   <h4 class="font-bold text-text">{{ msg.name }}</h4>
                   <p class="text-text opacity-60 text-sm">{{ msg.email }}</p>
+                  <p class="text-text opacity-40 text-xs mt-1">{{ msg.created_at.slice(0, 10) }} · {{ msg.role }}</p>
                 </div>
-                <span class="px-3 py-1 bg-primary bg-opacity-10 text-primary rounded-full text-xs font-semibold">{{ msg.category }}</span>
+                <div class="flex items-center gap-2">
+                  <span class="px-3 py-1 bg-primary bg-opacity-10 text-primary rounded-full text-xs font-semibold">{{ msg.category }}</span>
+                  <span v-if="msg.status === 'closed'" class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-xs font-semibold">Rezolvat</span>
+                  <span v-else class="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-semibold">Deschis</span>
+                </div>
               </div>
               <p class="text-text opacity-70 text-sm leading-relaxed">{{ msg.message }}</p>
               <div class="flex gap-2 mt-4">
-                <button class="px-4 py-2 bg-secondary bg-opacity-20 text-secondary rounded-xl text-sm font-semibold hover:bg-opacity-30 transition-colors duration-200">
-                  Răspunde
-                </button>
-                <button class="px-4 py-2 bg-red-100 text-red-500 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors duration-200">
-                  Șterge
+                <button
+                  v-if="msg.status === 'open'"
+                  @click="closeRequest(msg.id)"
+                  class="px-4 py-2 bg-green-100 text-green-600 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors duration-200"
+                >
+                  Marchează rezolvat
                 </button>
               </div>
             </div>
@@ -229,6 +253,7 @@ import axios from 'axios'
 
 const activeSection = ref('users')
 const activeUserFilter = ref('all')
+const activeSupportFilter = ref('all')
 const showAddPlan = ref(false)
 
 const menuItems = [
@@ -244,16 +269,12 @@ const userFilters = [
 ]
 
 const users = ref([])
+const supportMessages = ref([])
 
 const plans = ref([
   { id: 1, type: 'Buget', name: 'Dimineața', price: 180, description: 'Acces 06:00 - 12:00' },
   { id: 2, type: 'Standard', name: 'Oricând', price: 220, description: 'Acces nelimitat la sală' },
   { id: 3, type: 'VIP', name: 'Rezultate Garantate', price: 1000, description: 'Antrenor personal + plan nutrițional' },
-])
-
-const supportMessages = ref([
-  { id: 1, name: 'Alexandru Pop', email: 'alex@email.com', category: 'Problemă cont', message: 'Nu mă pot loga în aplicație de ieri.' },
-  { id: 2, name: 'Ioana Constantin', email: 'ioana@email.com', category: 'Problemă abonament', message: 'Am plătit abonamentul dar nu îmi apare activ.' },
 ])
 
 const newPlan = ref({ name: '', type: '', price: '', description: '' })
@@ -263,12 +284,26 @@ const filteredUsers = computed(() => {
   return users.value.filter(u => u.role === activeUserFilter.value)
 })
 
+const filteredSupport = computed(() => {
+  if (activeSupportFilter.value === 'all') return supportMessages.value
+  return supportMessages.value.filter(m => m.status === activeSupportFilter.value)
+})
+
 async function fetchUsers() {
   try {
     const response = await axios.get('/api/admin/users')
     users.value = response.data
   } catch (err) {
     console.error('Eroare la încărcarea userilor:', err)
+  }
+}
+
+async function fetchSupport() {
+  try {
+    const response = await axios.get('/api/support')
+    supportMessages.value = response.data
+  } catch (err) {
+    console.error('Eroare la încărcarea suportului:', err)
   }
 }
 
@@ -290,6 +325,16 @@ async function deleteUser(id) {
   }
 }
 
+async function closeRequest(id) {
+  try {
+    await axios.put(`/api/support/close?id=${id}`)
+    const msg = supportMessages.value.find(m => m.id === id)
+    if (msg) msg.status = 'closed'
+  } catch (err) {
+    console.error('Eroare:', err)
+  }
+}
+
 function deletePlan(id) {
   plans.value = plans.value.filter(p => p.id !== id)
 }
@@ -303,5 +348,6 @@ function addPlan() {
 
 onMounted(() => {
   fetchUsers()
+  fetchSupport()
 })
 </script>
