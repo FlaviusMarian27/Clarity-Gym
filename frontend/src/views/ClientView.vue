@@ -75,48 +75,8 @@
       </div>
     </section>
 
-    <!-- ANTRENORI -->
-    <section id="antrenori" class="py-24 bg-bg">
-      <div class="max-w-6xl mx-auto px-8">
-
-        <div class="text-center mb-16">
-          <h2 class="text-4xl font-bold text-text mb-4">Antrenorii Noștri</h2>
-          <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
-          <p class="text-lg text-text opacity-70 mt-6">Alege antrenorul potrivit pentru tine</p>
-        </div>
-
-        <div class="grid grid-cols-3 gap-6">
-          <div v-for="trainer in trainers" :key="trainer.id" class="bg-card rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
-            <div class="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white font-bold text-3xl mb-4 overflow-hidden">
-              <img v-if="trainer.avatar_url" :src="trainer.avatar_url.startsWith('http') ? trainer.avatar_url : 'http://localhost:8080' + trainer.avatar_url" class="w-full h-full object-cover" />
-              <span v-else>{{ trainer.name ? trainer.name[0].toUpperCase() : '?' }}</span>
-            </div>
-            <h3 class="text-xl font-bold text-text">{{ trainer.name }}</h3>
-            <p class="text-primary text-sm mt-1 font-medium">{{ trainer.specialty }}</p>
-            <p class="text-text opacity-60 text-sm mt-1">{{ trainer.experience_years }} ani experiență</p>            <p class="text-text opacity-70 text-sm mt-3 leading-relaxed">{{ trainer.bio }}</p>
-            <button
-              @click="getRequestStatus(trainer.id) === null || getRequestStatus(trainer.id) === 'rejected' ? sendCollaborationRequest(trainer.id) : null"
-              :disabled="getRequestStatus(trainer.id) === 'pending' || getRequestStatus(trainer.id) === 'accepted'"
-              :class="[
-                'mt-5 w-full py-2 rounded-xl transition-colors duration-200 font-semibold',
-                getRequestStatus(trainer.id) === 'accepted' ? 'bg-green-400 text-white cursor-not-allowed' :
-                getRequestStatus(trainer.id) === 'pending' ? 'bg-yellow-400 text-white cursor-not-allowed' :
-                'bg-primary hover:bg-secondary text-white'
-              ]"
-            >
-              {{ getRequestStatus(trainer.id) === 'accepted' ? 'Acceptat ✓' :
-                getRequestStatus(trainer.id) === 'pending' ? 'În așteptare...' :
-                getRequestStatus(trainer.id) === 'rejected' ? 'Retrimite cerere' :
-                'Colaborează' }}
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
     <!-- ABONAMENTE -->
-    <section id="abonamente" class="py-24 bg-card">
+    <section id="abonamente" class="py-24 bg-bg">
       <div class="max-w-6xl mx-auto px-8">
 
         <div class="text-center mb-16">
@@ -126,72 +86,97 @@
         </div>
 
         <div class="flex flex-col gap-6">
-
-          <!-- Buget -->
-          <div class="bg-bg rounded-2xl p-8 flex justify-between items-center shadow-sm">
+          <div
+            v-for="(plan, index) in plans"
+            :key="plan.id"
+            :class="[
+              'rounded-2xl p-8 flex justify-between items-center shadow-sm',
+              index === 1 ? 'bg-text' : 'bg-card'
+            ]"
+          >
             <div class="w-1/3">
-              <span class="text-sm font-semibold text-primary uppercase tracking-widest">Buget</span>
-              <h3 class="text-2xl font-bold text-text mt-1">Dimineața</h3>
-              <p class="text-text opacity-60 mt-2 text-sm">Acces în intervalul 06:00 - 12:00. Perfect pentru cei care preferă să înceapă ziua activ.</p>
-              <div class="mt-4 text-3xl font-bold text-text">180 RON <span class="text-base font-normal opacity-60">/lună</span></div>
-              <button class="mt-4 px-6 py-2 border border-primary text-text rounded-xl hover:bg-primary hover:text-white transition-colors duration-200 text-sm font-semibold">
+              <span class="text-sm font-semibold text-primary uppercase tracking-widest">{{ plan.type }}</span>
+              <h3 :class="['text-2xl font-bold mt-1', index === 1 ? 'text-white' : 'text-text']">{{ plan.name }}</h3>
+              <p :class="['mt-2 text-sm opacity-60', index === 1 ? 'text-white' : 'text-text']">{{ plan.description }}</p>
+              <div :class="['mt-4 text-3xl font-bold', index === 1 ? 'text-white' : 'text-text']">
+                {{ plan.price }} RON <span class="text-base font-normal opacity-60">/lună</span>
+              </div>
+              <button
+                @click="activatePlan(plan.id)"
+                :class="[
+                  'mt-4 inline-block px-6 py-2 rounded-xl text-sm font-semibold transition-colors duration-200',
+                  index === 1
+                    ? 'bg-primary text-white hover:bg-secondary'
+                    : 'border border-primary text-text hover:bg-primary hover:text-white'
+                ]"
+              >
                 Activează
               </button>
             </div>
             <div class="w-1/2">
+              <div v-if="index === 1" class="inline-block bg-primary text-white text-xs font-bold px-3 py-1 rounded-full mb-4">Best Value</div>
               <ul class="flex flex-col gap-3">
-                <li class="flex items-center gap-3 text-text opacity-80"><span class="text-secondary font-bold">✓</span> Acces sală 06:00 - 12:00</li>
-                <li class="flex items-center gap-3 text-text opacity-80"><span class="text-secondary font-bold">✓</span> Vestiare și dușuri incluse</li>
-                <li class="flex items-center gap-3 text-text opacity-80"><span class="text-secondary font-bold">✓</span> Evaluare fizică inițială</li>
+                <li v-if="index === 0" :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
+                  <span class="text-secondary font-bold">✓</span> Acces sală 06:00 - 12:00
+                </li>
+                <li v-if="index >= 1" :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
+                  <span class="text-primary font-bold">✓</span> Acces nelimitat la sală
+                </li>
+                <li :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
+                  <span :class="index === 1 ? 'text-primary font-bold' : 'text-secondary font-bold'">✓</span> Vestiare și dușuri incluse
+                </li>
+                <li :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
+                  <span :class="index === 1 ? 'text-primary font-bold' : 'text-secondary font-bold'">✓</span> Evaluare fizică inițială
+                </li>
+                <li v-if="index >= 1" :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
+                  <span :class="index === 1 ? 'text-primary font-bold' : 'text-secondary font-bold'">✓</span> 1 ședință cu antrenor/lună
+                </li>
+                <li v-if="index === 2" class="flex items-center gap-3 text-text opacity-80">
+                  <span class="text-secondary font-bold">✓</span> Antrenor personal dedicat
+                </li>
+                <li v-if="index === 2" class="flex items-center gap-3 text-text opacity-80">
+                  <span class="text-secondary font-bold">✓</span> Plan nutrițional personalizat
+                </li>
+                <li v-if="index === 2" class="flex items-center gap-3 text-text opacity-80">
+                  <span class="text-secondary font-bold">✓</span> Evaluări lunare de progres
+                </li>
               </ul>
             </div>
           </div>
-
-          <!-- Standard -->
-          <div class="bg-text rounded-2xl p-8 flex justify-between items-center shadow-md">
-            <div class="w-1/3">
-              <span class="text-sm font-semibold text-primary uppercase tracking-widest">Standard</span>
-              <h3 class="text-2xl font-bold text-white mt-1">Oricând</h3>
-              <p class="text-white opacity-60 mt-2 text-sm">Acces nelimitat la sală. Cea mai populară alegere pentru rezultate constante.</p>
-              <div class="mt-4 text-3xl font-bold text-white">220 RON <span class="text-base font-normal opacity-60">/lună</span></div>
-              <button class="mt-4 px-6 py-2 bg-primary text-white rounded-xl hover:bg-secondary transition-colors duration-200 text-sm font-semibold">
-                Activează
-              </button>
-            </div>
-            <div class="w-1/2">
-              <div class="inline-block bg-primary text-white text-xs font-bold px-3 py-1 rounded-full mb-4">Best Value</div>
-              <ul class="flex flex-col gap-3">
-                <li class="flex items-center gap-3 text-white opacity-80"><span class="text-primary font-bold">✓</span> Acces nelimitat la sală</li>
-                <li class="flex items-center gap-3 text-white opacity-80"><span class="text-primary font-bold">✓</span> Vestiare și dușuri incluse</li>
-                <li class="flex items-center gap-3 text-white opacity-80"><span class="text-primary font-bold">✓</span> Evaluare fizică inițială</li>
-                <li class="flex items-center gap-3 text-white opacity-80"><span class="text-primary font-bold">✓</span> 1 ședință cu antrenor/lună</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- VIP -->
-          <div class="bg-bg rounded-2xl p-8 flex justify-between items-center shadow-sm">
-            <div class="w-1/3">
-              <span class="text-sm font-semibold text-primary uppercase tracking-widest">VIP</span>
-              <h3 class="text-2xl font-bold text-text mt-1">Rezultate Garantate</h3>
-              <p class="text-text opacity-60 mt-2 text-sm">Experiența completă cu antrenor personal dedicat și plan nutrițional personalizat.</p>
-              <div class="mt-4 text-3xl font-bold text-text">1000 RON <span class="text-base font-normal opacity-60">/lună</span></div>
-              <button class="mt-4 px-6 py-2 border border-primary text-text rounded-xl hover:bg-primary hover:text-white transition-colors duration-200 text-sm font-semibold">
-                Activează
-              </button>
-            </div>
-            <div class="w-1/2">
-              <ul class="flex flex-col gap-3">
-                <li class="flex items-center gap-3 text-text opacity-80"><span class="text-secondary font-bold">✓</span> Acces nelimitat la sală</li>
-                <li class="flex items-center gap-3 text-text opacity-80"><span class="text-secondary font-bold">✓</span> Antrenor personal dedicat</li>
-                <li class="flex items-center gap-3 text-text opacity-80"><span class="text-secondary font-bold">✓</span> Plan nutrițional personalizat</li>
-                <li class="flex items-center gap-3 text-text opacity-80"><span class="text-secondary font-bold">✓</span> Evaluări lunare de progres</li>
-                <li class="flex items-center gap-3 text-text opacity-80"><span class="text-secondary font-bold">✓</span> Prioritate la rezervări clase</li>
-              </ul>
-            </div>
-          </div>
-
         </div>
+
+      </div>
+    </section>
+
+    <!-- ABONAMENTE -->
+    <section id="abonamente" class="py-24 bg-card">
+      <div class="max-w-6xl mx-auto px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold text-text mb-4">Abonamente</h2>
+          <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
+          <p class="text-lg text-text opacity-70 mt-6">Alege planul potrivit pentru tine</p>
+        </div>
+
+        <div class="flex flex-col gap-6">
+          <div
+            v-for="plan in plans"
+            :key="plan.id"
+            class="bg-bg rounded-2xl p-8 shadow-sm flex justify-between items-center"
+          >
+            <div>
+              <span class="text-xs font-semibold text-primary uppercase tracking-widest">{{ plan.type }}</span>
+              <h3 class="text-2xl font-bold text-text mt-1">{{ plan.name }}</h3>
+              <p class="text-text opacity-60 mt-2">{{ plan.description }}</p>
+            </div>
+            <div class="flex items-center gap-8">
+              <span class="text-3xl font-bold text-text">{{ plan.price }} RON<span class="text-sm font-normal opacity-60">/lună</span></span>
+              <button class="px-6 py-3 bg-primary hover:bg-secondary text-white rounded-xl font-semibold transition-colors duration-200">
+                Activează
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -414,12 +399,14 @@ const trainers = ref([])
 
 onMounted(async () => {
   try {
-    const [trainersRes, statusRes] = await Promise.all([
+    const [trainersRes, statusRes, plansRes] = await Promise.all([
       axios.get('/api/trainers'),
-      axios.get('/api/collaborations/status')
+      axios.get('/api/collaborations/status'),
+      axios.get('/api/plans')
     ])
     trainers.value = trainersRes.data
     myRequests.value = statusRes.data
+    plans.value = plansRes.data
   } catch (err) {
     console.error(err)
   }
@@ -463,5 +450,20 @@ async function sendSupportRequest() {
   } finally {
     supportLoading.value = false
   }
+}
+
+const plans = ref([])
+
+async function fetchPlans() {
+  try {
+    const response = await axios.get('/api/plans')
+    plans.value = response.data
+  } catch (err) {
+    console.error('Eroare la încărcarea planurilor:', err)
+  }
+}
+
+async function activatePlan(planId) {
+  alert('Abonament activat! (în curând plată reală)')
 }
 </script>
