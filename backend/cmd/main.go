@@ -18,6 +18,8 @@ import (
 	"github.com/rs/cors"
 
 	"clarity-gym/internal/support"
+
+	"clarity-gym/internal/subscription"
 )
 
 func main() {
@@ -43,6 +45,7 @@ func main() {
 	trainerHandler := &trainer.Handler{DB: db}
 	collaborationHandler := &collaboration.Handler{DB: db}
 	supportHandler := &support.Handler{DB: db}
+	subscriptionHandler := &subscription.Handler{DB: db}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -68,6 +71,9 @@ func main() {
 
 	// Public routes
 	r.Get("/api/trainers", trainerHandler.GetAllTrainers)
+
+	// Planuri publice
+	r.Get("/api/plans", subscriptionHandler.GetAllPlans)
 
 	// Protected routes
 	r.Group(func(r chi.Router) {
@@ -95,6 +101,11 @@ func main() {
 		r.Post("/api/support", supportHandler.SendRequest)
 		r.Get("/api/support", supportHandler.GetAllRequests)
 		r.Put("/api/support/close", supportHandler.CloseRequest)
+
+		// In grupul protejat
+		r.Post("/api/plans", subscriptionHandler.AddPlan)
+		r.Put("/api/plans/{id}", subscriptionHandler.UpdatePlan)
+		r.Delete("/api/plans/{id}", subscriptionHandler.DeletePlan)
 	})
 
 	fmt.Println("🚀 Server pornit pe portul", cfg.Port)

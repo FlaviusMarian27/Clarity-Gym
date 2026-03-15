@@ -146,7 +146,9 @@
               <div class="flex items-center gap-6">
                 <span class="text-2xl font-bold text-text">{{ plan.price }} RON<span class="text-sm font-normal opacity-60">/lună</span></span>
                 <div class="flex gap-2">
-                  <button class="px-4 py-2 bg-secondary bg-opacity-20 text-secondary rounded-xl text-sm font-semibold hover:bg-opacity-30 transition-colors duration-200">
+                  <button
+                    @click="startEdit(plan)"
+                    class="px-4 py-2 bg-secondary bg-opacity-20 text-secondary rounded-xl text-sm font-semibold hover:bg-opacity-30 transition-colors duration-200">
                     Editează
                   </button>
                   <button
@@ -177,6 +179,27 @@
                     Anulează
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Editare Plan -->
+        <div v-if="showEditPlan" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div class="bg-card rounded-2xl p-8 w-full max-w-md shadow-xl">
+            <h2 class="text-2xl font-bold text-text mb-6">Editează Plan</h2>
+            <div class="flex flex-col gap-4">
+              <input v-model="editPlan.name" type="text" placeholder="Numele planului" class="border border-primary rounded-xl px-4 py-3 text-text bg-bg focus:outline-none focus:ring-2 focus:ring-secondary" />
+              <input v-model="editPlan.type" type="text" placeholder="Tip (Buget / Standard / VIP)" class="border border-primary rounded-xl px-4 py-3 text-text bg-bg focus:outline-none focus:ring-2 focus:ring-secondary" />
+              <input v-model="editPlan.price" type="number" placeholder="Preț (RON)" class="border border-primary rounded-xl px-4 py-3 text-text bg-bg focus:outline-none focus:ring-2 focus:ring-secondary" />
+              <textarea v-model="editPlan.description" placeholder="Descriere" rows="3" class="border border-primary rounded-xl px-4 py-3 text-text bg-bg focus:outline-none focus:ring-2 focus:ring-secondary resize-none"></textarea>
+              <div class="flex gap-3">
+                <button @click="saveEdit" class="flex-1 bg-primary hover:bg-secondary text-white font-semibold py-3 rounded-xl transition-colors duration-200">
+                  Salvează
+                </button>
+                <button @click="showEditPlan = false" class="flex-1 border border-primary text-text font-semibold py-3 rounded-xl hover:bg-bg transition-colors duration-200">
+                  Anulează
+                </button>
               </div>
             </div>
           </div>
@@ -255,6 +278,8 @@ const activeSection = ref('users')
 const activeUserFilter = ref('all')
 const activeSupportFilter = ref('all')
 const showAddPlan = ref(false)
+const showEditPlan = ref(false)
+const editPlan = ref({ id: null, name: '', type: '', price: '', description: '' })
 
 const menuItems = [
   { key: 'users', label: 'Utilizatori', icon: '👥' },
@@ -270,13 +295,7 @@ const userFilters = [
 
 const users = ref([])
 const supportMessages = ref([])
-
-const plans = ref([
-  { id: 1, type: 'Buget', name: 'Dimineața', price: 180, description: 'Acces 06:00 - 12:00' },
-  { id: 2, type: 'Standard', name: 'Oricând', price: 220, description: 'Acces nelimitat la sală' },
-  { id: 3, type: 'VIP', name: 'Rezultate Garantate', price: 1000, description: 'Antrenor personal + plan nutrițional' },
-])
-
+const plans = ref([])
 const newPlan = ref({ name: '', type: '', price: '', description: '' })
 
 const filteredUsers = computed(() => {
@@ -304,6 +323,15 @@ async function fetchSupport() {
     supportMessages.value = response.data
   } catch (err) {
     console.error('Eroare la încărcarea suportului:', err)
+  }
+}
+
+async function fetchPlans() {
+  try {
+    const response = await axios.get('/api/plans')
+    plans.value = response.data
+  } catch (err) {
+    console.error('Eroare la încărcarea planurilor:', err)
   }
 }
 
@@ -335,19 +363,46 @@ async function closeRequest(id) {
   }
 }
 
-function deletePlan(id) {
-  plans.value = plans.value.filter(p => p.id !== id)
+function startEdit(plan) {
+  editPlan.value = { ...plan }
+  showEditPlan.value = true
 }
 
-function addPlan() {
+async function saveEdit() {
+  try {
+    await axios.put(`/api/plans/${editPlan.value.id}`, editPlan.value)
+    const index = plans.value.findIndex(p => p.id === editPlan.value.id)
+    if (index !== -1) plans.value[index] = { ...editPlan.value }
+    showEditPlan.value = false
+  } catch (err) {
+    console.error('Eroare la editare:', err)
+  }
+}
+
+async function deletePlan(id) {
+  try {
+    await axios.delete(`/api/plans/${id}`)
+    plans.value = plans.value.filter(p => p.id !== id)
+  } catch (err) {
+    console.error('Eroare la ștergere:', err)
+  }
+}
+
+async function addPlan() {
   if (!newPlan.value.name || !newPlan.value.price) return
-  plans.value.push({ id: Date.now(), ...newPlan.value })
-  newPlan.value = { name: '', type: '', price: '', description: '' }
-  showAddPlan.value = false
+  try {
+    const response = await axios.post('/api/plans', newPlan.value)
+    plans.value.push({ id: response.data.id, ...newPlan.value })
+    newPlan.value = { name: '', type: '', price: '', description: '' }
+    showAddPlan.value = false
+  } catch (err) {
+    console.error('Eroare la adaugare:', err)
+  }
 }
 
 onMounted(() => {
   fetchUsers()
   fetchSupport()
+  fetchPlans()
 })
 </script>
