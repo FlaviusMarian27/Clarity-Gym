@@ -116,63 +116,35 @@
             <div class="w-1/2">
               <div v-if="index === 1" class="inline-block bg-primary text-white text-xs font-bold px-3 py-1 rounded-full mb-4">Best Value</div>
               <ul class="flex flex-col gap-3">
-                <li v-if="index === 0" :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
-                  <span class="text-secondary font-bold">✓</span> Acces sală 06:00 - 12:00
-                </li>
-                <li v-if="index >= 1" :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
-                  <span class="text-primary font-bold">✓</span> Acces nelimitat la sală
+                <li :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
+                  <span :class="index === 1 ? 'text-primary font-bold' : 'text-secondary font-bold'">✓</span>
+                  {{ plan.type === 'Buget' ? 'Acces sală 06:00 - 12:00' : 'Acces nelimitat la sală' }}
                 </li>
                 <li :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
-                  <span :class="index === 1 ? 'text-primary font-bold' : 'text-secondary font-bold'">✓</span> Vestiare și dușuri incluse
+                  <span :class="index === 1 ? 'text-primary font-bold' : 'text-secondary font-bold'">✓</span>
+                  Vestiare și dușuri incluse
                 </li>
                 <li :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
-                  <span :class="index === 1 ? 'text-primary font-bold' : 'text-secondary font-bold'">✓</span> Evaluare fizică inițială
+                  <span :class="index === 1 ? 'text-primary font-bold' : 'text-secondary font-bold'">✓</span>
+                  Evaluare fizică inițială
                 </li>
-                <li v-if="index >= 1" :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
-                  <span :class="index === 1 ? 'text-primary font-bold' : 'text-secondary font-bold'">✓</span> 1 ședință cu antrenor/lună
+                <li v-if="plan.type !== 'Buget'" :class="['flex items-center gap-3 opacity-80', index === 1 ? 'text-white' : 'text-text']">
+                  <span :class="index === 1 ? 'text-primary font-bold' : 'text-secondary font-bold'">✓</span>
+                  1 ședință cu antrenor/lună
                 </li>
-                <li v-if="index === 2" class="flex items-center gap-3 text-text opacity-80">
+                <li v-if="plan.type === 'VIP'" class="flex items-center gap-3 text-text opacity-80">
                   <span class="text-secondary font-bold">✓</span> Antrenor personal dedicat
                 </li>
-                <li v-if="index === 2" class="flex items-center gap-3 text-text opacity-80">
+                <li v-if="plan.type === 'VIP'" class="flex items-center gap-3 text-text opacity-80">
                   <span class="text-secondary font-bold">✓</span> Plan nutrițional personalizat
                 </li>
-                <li v-if="index === 2" class="flex items-center gap-3 text-text opacity-80">
+                <li v-if="plan.type === 'VIP'" class="flex items-center gap-3 text-text opacity-80">
                   <span class="text-secondary font-bold">✓</span> Evaluări lunare de progres
                 </li>
+                <li v-if="plan.type === 'VIP'" class="flex items-center gap-3 text-text opacity-80">
+                  <span class="text-secondary font-bold">✓</span> Prioritate la rezervări clase
+                </li>
               </ul>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ABONAMENTE -->
-    <section id="abonamente" class="py-24 bg-card">
-      <div class="max-w-6xl mx-auto px-8">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl font-bold text-text mb-4">Abonamente</h2>
-          <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
-          <p class="text-lg text-text opacity-70 mt-6">Alege planul potrivit pentru tine</p>
-        </div>
-
-        <div class="flex flex-col gap-6">
-          <div
-            v-for="plan in plans"
-            :key="plan.id"
-            class="bg-bg rounded-2xl p-8 shadow-sm flex justify-between items-center"
-          >
-            <div>
-              <span class="text-xs font-semibold text-primary uppercase tracking-widest">{{ plan.type }}</span>
-              <h3 class="text-2xl font-bold text-text mt-1">{{ plan.name }}</h3>
-              <p class="text-text opacity-60 mt-2">{{ plan.description }}</p>
-            </div>
-            <div class="flex items-center gap-8">
-              <span class="text-3xl font-bold text-text">{{ plan.price }} RON<span class="text-sm font-normal opacity-60">/lună</span></span>
-              <button class="px-6 py-3 bg-primary hover:bg-secondary text-white rounded-xl font-semibold transition-colors duration-200">
-                Activează
-              </button>
             </div>
           </div>
         </div>
