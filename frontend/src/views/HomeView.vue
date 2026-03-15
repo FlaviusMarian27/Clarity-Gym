@@ -254,27 +254,65 @@
     </section>
 
     <!-- LOCATIE -->
-    <section id="locatie" class="py-24 bg-bg">
-        <div class="max-w-6xl mx-auto px-8">
+    <section id="locatie" class="py-24 bg-card">
+    <div class="max-w-6xl mx-auto px-8">
+        <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold text-text mb-4">Locație</h2>
+        <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
+        <p class="text-lg text-text opacity-70 mt-6">Ne găsești în inima Timișoarei</p>
+        </div>
 
-            <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-text mb-4">Locație</h2>
-            <div class="w-20 h-1 bg-primary mx-auto rounded-full"></div>
-            <p class="text-lg text-text opacity-70 mt-6">Ne găsești în inima Timișoarei</p>
+        <div class="flex gap-8 items-stretch">
+
+        <!-- Orar -->
+        <div class="w-1/3 bg-bg rounded-2xl p-8 shadow-sm flex flex-col justify-center">
+            <h3 class="text-xl font-bold text-text mb-6 text-center">Program de Funcționare</h3>
+            <div class="flex flex-col gap-3">
+            <div class="flex justify-between items-center py-2 border-b border-card">
+                <span class="text-text font-medium">Luni</span>
+                <span class="text-primary font-semibold">06:00 - 00:00</span>
             </div>
+            <div class="flex justify-between items-center py-2 border-b border-card">
+                <span class="text-text font-medium">Marți</span>
+                <span class="text-primary font-semibold">06:00 - 00:00</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-card">
+                <span class="text-text font-medium">Miercuri</span>
+                <span class="text-primary font-semibold">06:00 - 00:00</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-card">
+                <span class="text-text font-medium">Joi</span>
+                <span class="text-primary font-semibold">06:00 - 00:00</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-card">
+                <span class="text-text font-medium">Vineri</span>
+                <span class="text-primary font-semibold">06:00 - 00:00</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-card">
+                <span class="text-text font-medium">Sâmbătă</span>
+                <span class="text-primary font-semibold">08:00 - 22:00</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+                <span class="text-text font-medium">Duminică</span>
+                <span class="text-primary font-semibold">08:00 - 22:00</span>
+            </div>
+            </div>
+        </div>
 
-            <div class="rounded-2xl overflow-hidden shadow-sm">
+        <!-- Harta -->
+        <div class="w-2/3 rounded-2xl overflow-hidden shadow-sm">
             <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d88280.10983570529!2d21.1782!3d45.7489!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47455d84610655bf%3A0xfd169ff07d1c4c78!2sTimișoara!5e0!3m2!1sro!2sro!4v1"
-                width="100%"
-                height="450"
-                style="border:0;"
-                allowfullscreen=""
-                loading="lazy"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d88280.10983570529!2d21.1782!3d45.7489!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47455d84610655bf%3A0xfd169ff07d1c4c78!2sTimișoara!5e0!3m2!1sro!2sro!4v1"
+            width="100%"
+            height="100%"
+            style="border:0; min-height: 400px;"
+            allowfullscreen=""
+            loading="lazy"
             ></iframe>
-            </div>
+        </div>
 
         </div>
+    </div>
     </section>
 
     <!-- SUPORT -->
