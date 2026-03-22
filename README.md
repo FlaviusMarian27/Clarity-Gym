@@ -166,6 +166,12 @@ Clarity-Gym/
 │   └── uploads/avatars/    # Poze profil
 └── start.sh                # Script pornire
 ```
+---
+
+<p align="center">
+  <img src="image/img.png" width="50%" />
+  <img src="image/img1.png" width="50%" /> 
+</p>
 
 ---
 
