@@ -169,8 +169,17 @@ Clarity-Gym/
 ---
 
 <p align="center">
-  <img src="image/img.png" width="100%" />
-  <img src="image/img1.png" width="100%" /> 
+    <img src="image/img.png" width="100%" />
+    <img src="image/img1.png" width="100%" /> 
+    <img src="image/img2.png" width="100%" />
+    <img src="image/img3.png" width="100%" />
+    <img src="image/img4.png" width="100%" />
+    <img src="image/img5.png" width="100%" />
+    <img src="image/img6.png" width="100%" />
+    <img src="image/img7.png" width="100%" />
+    <img src="image/img8.png" width="100%" />
+    <img src="image/img9.png" width="100%" />
+    <img src="image/img10.png" width="100%" />
 </p>
 
 ---
