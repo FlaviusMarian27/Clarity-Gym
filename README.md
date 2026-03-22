@@ -164,6 +164,7 @@ Clarity-Gym/
 │   │   └── support/        # Suport tehnic
 │   ├── db/migrations/      # SQL migrații
 │   └── uploads/avatars/    # Poze profil
+├── image/
 └── start.sh                # Script pornire
 ```
 ---
